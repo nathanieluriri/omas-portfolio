@@ -1,26 +1,180 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --bg-primary: #0e0f12;
+  --bg-surface: #15171c;
+  --bg-surface-hover: #1b1e24;
+  --bg-divider: #23262d;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b8c4;
+  --text-muted: #8a8f9c;
+  --accent-primary: #ff6a00;
+  --accent-secondary: #22c55e;
+  --accent-muted: rgba(255, 106, 0, 0.15);
+  --status-open: #22c55e;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-primary: #f7f7f8;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f3f6;
+  --bg-divider: #d7dbe3;
+  --text-primary: #0f1115;
+  --text-secondary: #4b5160;
+  --text-muted: #6b7280;
+  --accent-primary: #ff6a00;
+  --accent-secondary: #16a34a;
+  --accent-muted: rgba(255, 106, 0, 0.12);
+  --status-open: #16a34a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20vmax;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.08),
+    transparent 55%
+  );
+  transform: scale(0.9);
+  transition: opacity 200ms ease-out;
+  z-index: 0;
+}
+
+[data-theme="light"] body::before {
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(15, 17, 21, 0.08),
+    transparent 55%
+  );
+}
+
+body > div {
+  position: relative;
+  z-index: 1;
+}
+
+html.theme-transition * {
+  transition-property: color, background-color, border-color, box-shadow, fill,
+    stroke;
+  transition-duration: 520ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html.theme-transition body::before {
+  animation: theme-wash 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+a {
+  color: inherit;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes theme-wash {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  45% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes status-glow {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  55% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.animate-status-glow {
+  animation: status-glow 3.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-status-glow {
+    animation: none;
+  }
+
+  html.theme-transition * {
+    transition: none !important;
+  }
+
+  html.theme-transition body::before {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }
