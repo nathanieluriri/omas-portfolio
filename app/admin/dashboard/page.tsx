@@ -37,7 +37,10 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <AdminShell title="Dashboard">
+    <AdminShell
+      title="Dashboard"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Dashboard" }]}
+    >
       <div className="grid gap-6 lg:grid-cols-3">
         <SurfaceCard className="flex flex-col gap-3">
           <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">

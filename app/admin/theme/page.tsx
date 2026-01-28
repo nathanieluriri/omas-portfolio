@@ -1,10 +1,10 @@
 "use client";
 
 import AdminShell from "../components/AdminShell";
-import Button from "../components/Button";
 import SurfaceCard from "../components/SurfaceCard";
 import usePortfolioDraft from "../hooks/usePortfolioDraft";
 import type { ThemeColors } from "../../../lib/types";
+import DraftBar from "../../components/admin/DraftBar";
 
 const themeFields: Array<keyof ThemeColors> = [
   "text_primary",
@@ -24,7 +24,10 @@ export default function ThemeEditorPage() {
 
   if (loading || !draft) {
     return (
-      <AdminShell title="Theme">
+      <AdminShell
+        title="Theme"
+        breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Theme" }]}
+      >
         <SurfaceCard>Loading theme...</SurfaceCard>
       </AdminShell>
     );
@@ -43,25 +46,16 @@ export default function ThemeEditorPage() {
   };
 
   return (
-    <AdminShell title="Theme">
-      <SurfaceCard className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-            Draft status
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            {hasChanges ? "Unsaved changes" : "All changes saved"}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={discard} disabled={saving}>
-            Discard changes
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? "Saving..." : "Save changes"}
-          </Button>
-        </div>
-      </SurfaceCard>
+    <AdminShell
+      title="Theme"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Theme" }]}
+    >
+      <DraftBar
+        visible={hasChanges}
+        saving={saving}
+        onSave={save}
+        onDiscard={discard}
+      />
 
       <SurfaceCard>
         <h2 className="text-lg font-semibold">Theme colors</h2>

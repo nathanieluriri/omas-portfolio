@@ -1,8 +1,8 @@
 import ProjectsSection from "../../components/ProjectsSection";
-import { getPortfolio } from "../../../lib/portfolio";
+import { fetchPortfolioISR } from "../../../lib/server/portfolio";
 
 export default async function WorkPage() {
-  const portfolio = await getPortfolio();
+  const portfolio = await fetchPortfolioISR();
 
   if (!portfolio) {
     return <ProjectsSection />;

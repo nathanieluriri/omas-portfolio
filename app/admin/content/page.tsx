@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import AdminShell from "../components/AdminShell";
 import Button from "../components/Button";
@@ -12,6 +13,8 @@ import type {
   ProjectEntry,
   SkillGroup,
 } from "../../../lib/types";
+import DraftBar from "../../components/admin/DraftBar";
+import CaseStudyEditor from "../../components/admin/CaseStudyEditor";
 
 function emptyPortfolio(): PortfolioOut {
   return {
@@ -65,9 +68,58 @@ function ListInput({
   );
 }
 
+function SectionCard({
+  id,
+  title,
+  expanded,
+  onToggle,
+  changed,
+  actions,
+  children,
+}: {
+  id: string;
+  title: string;
+  expanded: boolean;
+  onToggle: () => void;
+  changed: boolean;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div id={id}>
+      <SurfaceCard>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button
+          id={id}
+          type="button"
+          onClick={onToggle}
+          className="flex items-center gap-3 text-left"
+          aria-expanded={expanded}
+        >
+          <span
+            className={`text-lg font-semibold transition-transform duration-200 ${
+              expanded ? "rotate-0" : "-rotate-90"
+            }`}
+          >
+            ▾
+          </span>
+          <span className="text-lg font-semibold">{title}</span>
+          {changed ? (
+            <span className="h-2 w-2 rounded-full bg-[var(--accent-primary)]" />
+          ) : null}
+        </button>
+        {expanded ? actions : null}
+      </div>
+      {expanded ? <div className="mt-4">{children}</div> : null}
+      </SurfaceCard>
+    </div>
+  );
+}
+
 export default function ContentEditorPage() {
   const {
     draft,
+    portfolio,
     setDraft,
     loading,
     saving,
@@ -78,6 +130,41 @@ export default function ContentEditorPage() {
   } = usePortfolioDraft();
 
   const data = useMemo(() => draft ?? emptyPortfolio(), [draft]);
+
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    hero: true,
+    experience: false,
+    projects: false,
+    skills: false,
+    contacts: false,
+    navigation: false,
+    footer: false,
+  });
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("admin-content-sections");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as Record<string, boolean>;
+        setExpanded((prev) => ({ ...prev, ...parsed }));
+      } catch {
+        // ignore invalid storage
+      }
+    }
+  }, []);
+
+  const toggleSection = (key: string) => {
+    setExpanded((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      window.localStorage.setItem("admin-content-sections", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const sectionChanged = (key: keyof PortfolioOut) => {
+    if (!portfolio) return !!draft;
+    return JSON.stringify(draft?.[key]) !== JSON.stringify(portfolio?.[key]);
+  };
 
   const updateHero = (field: string, value: string | string[]) => {
     setDraft({
@@ -147,7 +234,7 @@ export default function ContentEditorPage() {
       ...data,
       projects: [
         ...(data.projects ?? []),
-        { title: "", description: "", link: "", tags: [] },
+        { title: "", description: "", link: "", tags: [], caseStudy: undefined },
       ],
     });
   };
@@ -208,39 +295,40 @@ export default function ContentEditorPage() {
 
   if (loading) {
     return (
-      <AdminShell title="Content">
+      <AdminShell
+        title="Content"
+        breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Content" }]}
+      >
         <SurfaceCard>Loading portfolio...</SurfaceCard>
       </AdminShell>
     );
   }
 
   return (
-    <AdminShell title="Content">
-      <SurfaceCard className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-            Draft status
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            {hasChanges ? "Unsaved changes" : "All changes saved"}
-          </p>
-          {error ? (
-            <p className="mt-2 text-sm text-red-300">{error}</p>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={discard} disabled={saving}>
-            Discard changes
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? "Saving..." : "Save changes"}
-          </Button>
-        </div>
-      </SurfaceCard>
+    <AdminShell
+      title="Content"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Content" }]}
+    >
+      <DraftBar
+        visible={hasChanges}
+        saving={saving}
+        onSave={save}
+        onDiscard={discard}
+      />
+      {error ? (
+        <SurfaceCard className="border border-red-500/30 bg-red-500/10 text-red-100">
+          {error}
+        </SurfaceCard>
+      ) : null}
 
-      <SurfaceCard>
-        <h2 className="text-lg font-semibold">Hero</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <SectionCard
+        id="hero"
+        title="Hero"
+        expanded={expanded.hero}
+        onToggle={() => toggleSection("hero")}
+        changed={sectionChanged("hero")}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
           <input
             className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
             placeholder="Name"
@@ -302,16 +390,21 @@ export default function ContentEditorPage() {
             Add paragraph
           </Button>
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Experience</h2>
+      <SectionCard
+        id="experience"
+        title="Experience"
+        expanded={expanded.experience}
+        onToggle={() => toggleSection("experience")}
+        changed={sectionChanged("experience")}
+        actions={
           <Button variant="secondary" onClick={addExperience}>
             Add role
           </Button>
-        </div>
-        <div className="mt-4 flex flex-col gap-6">
+        }
+      >
+        <div className="flex flex-col gap-6">
           {(data.experience ?? []).map((entry, index) => (
             <div
               key={`${entry.role}-${index}`}
@@ -418,16 +511,21 @@ export default function ContentEditorPage() {
             </div>
           ))}
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Projects</h2>
+      <SectionCard
+        id="projects"
+        title="Projects"
+        expanded={expanded.projects}
+        onToggle={() => toggleSection("projects")}
+        changed={sectionChanged("projects")}
+        actions={
           <Button variant="secondary" onClick={addProject}>
             Add project
           </Button>
-        </div>
-        <div className="mt-4 flex flex-col gap-6">
+        }
+      >
+        <div className="flex flex-col gap-6">
           {(data.projects ?? []).map((entry, index) => (
             <div
               key={`${entry.title}-${index}`}
@@ -477,19 +575,28 @@ export default function ContentEditorPage() {
                   Use commas or new lines to separate tags.
                 </p>
               </div>
+              <CaseStudyEditor
+                caseStudy={entry.caseStudy}
+                onUpdate={(next) => updateProjects(index, { caseStudy: next })}
+              />
             </div>
           ))}
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Skills</h2>
+      <SectionCard
+        id="skills"
+        title="Skills"
+        expanded={expanded.skills}
+        onToggle={() => toggleSection("skills")}
+        changed={sectionChanged("skillGroups")}
+        actions={
           <Button variant="secondary" onClick={addSkillGroup}>
             Add skill group
           </Button>
-        </div>
-        <div className="mt-4 flex flex-col gap-6">
+        }
+      >
+        <div className="flex flex-col gap-6">
           {(data.skillGroups ?? []).map((group, index) => (
             <div
               key={`${group.title}-${index}`}
@@ -524,16 +631,21 @@ export default function ContentEditorPage() {
             </div>
           ))}
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Contacts</h2>
+      <SectionCard
+        id="contacts"
+        title="Contacts"
+        expanded={expanded.contacts}
+        onToggle={() => toggleSection("contacts")}
+        changed={sectionChanged("contacts")}
+        actions={
           <Button variant="secondary" onClick={addContact}>
             Add contact
           </Button>
-        </div>
-        <div className="mt-4 flex flex-col gap-6">
+        }
+      >
+        <div className="flex flex-col gap-6">
           {(data.contacts ?? []).map((contact, index) => (
             <div
               key={`${contact.label}-${index}`}
@@ -584,16 +696,21 @@ export default function ContentEditorPage() {
             </div>
           ))}
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Navigation</h2>
+      <SectionCard
+        id="navigation"
+        title="Navigation"
+        expanded={expanded.navigation}
+        onToggle={() => toggleSection("navigation")}
+        changed={sectionChanged("navItems")}
+        actions={
           <Button variant="secondary" onClick={addNavItem}>
             Add nav item
           </Button>
-        </div>
-        <div className="mt-4 flex flex-col gap-4">
+        }
+      >
+        <div className="flex flex-col gap-4">
           {(data.navItems ?? []).map((item, index) => (
             <div
               key={`${item.label}-${index}`}
@@ -628,11 +745,16 @@ export default function ContentEditorPage() {
             </div>
           ))}
         </div>
-      </SurfaceCard>
+      </SectionCard>
 
-      <SurfaceCard>
-        <h2 className="text-lg font-semibold">Footer</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <SectionCard
+        id="footer"
+        title="Footer"
+        expanded={expanded.footer}
+        onToggle={() => toggleSection("footer")}
+        changed={sectionChanged("footer")}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
           <input
             className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
             placeholder="Copyright"
@@ -656,7 +778,7 @@ export default function ContentEditorPage() {
             }
           />
         </div>
-      </SurfaceCard>
+      </SectionCard>
     </AdminShell>
   );
 }

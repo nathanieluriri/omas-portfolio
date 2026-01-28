@@ -16,14 +16,20 @@ export default function AssetsPage() {
 
   if (loading || !draft) {
     return (
-      <AdminShell title="Assets">
+      <AdminShell
+        title="Assets"
+        breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Assets" }]}
+      >
         <SurfaceCard>Loading assets...</SurfaceCard>
       </AdminShell>
     );
   }
 
   return (
-    <AdminShell title="Assets">
+    <AdminShell
+      title="Assets"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Assets" }]}
+    >
       <SurfaceCard>
         <h2 className="text-lg font-semibold">Resume upload</h2>
         <p className="mt-2 text-sm text-[var(--text-secondary)]">

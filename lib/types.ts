@@ -31,6 +31,22 @@ export interface ProjectEntry {
   tags?: string[];
   description: string;
   link: string;
+  caseStudy?: CaseStudy;
+}
+
+export interface CaseStudy {
+  overview?: string;
+  goal?: string;
+  role?: {
+    title?: string;
+    bullets?: string[];
+  };
+  screenshots?: Array<{
+    src: string;
+    alt?: string;
+    caption?: string;
+  }>;
+  outcomes?: string[];
 }
 
 export interface SkillGroup {

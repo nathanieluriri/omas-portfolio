@@ -1,9 +1,9 @@
 "use client";
 
 import AdminShell from "../components/AdminShell";
-import Button from "../components/Button";
 import SurfaceCard from "../components/SurfaceCard";
 import usePortfolioDraft from "../hooks/usePortfolioDraft";
+import DraftBar from "../../components/admin/DraftBar";
 
 export default function SeoEditorPage() {
   const { draft, setDraft, loading, save, saving, discard, hasChanges } =
@@ -11,7 +11,10 @@ export default function SeoEditorPage() {
 
   if (loading || !draft) {
     return (
-      <AdminShell title="SEO">
+      <AdminShell
+        title="SEO"
+        breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "SEO" }]}
+      >
         <SurfaceCard>Loading metadata...</SurfaceCard>
       </AdminShell>
     );
@@ -20,25 +23,16 @@ export default function SeoEditorPage() {
   const metadata = draft.metadata ?? {};
 
   return (
-    <AdminShell title="SEO">
-      <SurfaceCard className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-            Draft status
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            {hasChanges ? "Unsaved changes" : "All changes saved"}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={discard} disabled={saving}>
-            Discard changes
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? "Saving..." : "Save changes"}
-          </Button>
-        </div>
-      </SurfaceCard>
+    <AdminShell
+      title="SEO"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "SEO" }]}
+    >
+      <DraftBar
+        visible={hasChanges}
+        saving={saving}
+        onSave={save}
+        onDiscard={discard}
+      />
 
       <SurfaceCard>
         <h2 className="text-lg font-semibold">Metadata</h2>

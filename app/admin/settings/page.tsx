@@ -13,7 +13,10 @@ export default function SettingsPage() {
   const { portfolio, reload } = usePortfolioDraft();
 
   return (
-    <AdminShell title="Settings">
+    <AdminShell
+      title="Settings"
+      breadcrumb={[{ label: "Admin", href: "/admin/dashboard" }, { label: "Settings" }]}
+    >
       <SurfaceCard>
         <h2 className="text-lg font-semibold">Session</h2>
         <p className="mt-2 text-sm text-[var(--text-secondary)]">

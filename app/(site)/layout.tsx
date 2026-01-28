@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { getPortfolio } from "../../lib/portfolio";
+import { fetchPortfolioISR } from "../../lib/server/portfolio";
 import { themeToStyle } from "../../lib/theme";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const portfolio = await getPortfolio();
+  const portfolio = await fetchPortfolioISR();
   const metadata = portfolio?.metadata;
 
   return {
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const portfolio = await getPortfolio();
+  const portfolio = await fetchPortfolioISR();
   const navItems =
     portfolio?.navItems && portfolio.navItems.length > 0
       ? portfolio.navItems
