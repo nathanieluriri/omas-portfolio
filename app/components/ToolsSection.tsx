@@ -36,7 +36,7 @@ function SkillGroup({
   delay,
 }: {
   title: string;
-  items: string[] | undefined;
+  items?: string[];
   delay: string;
 }) {
   return (

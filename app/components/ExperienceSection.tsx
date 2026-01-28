@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
+  type Variants,
   useInView,
   useReducedMotion,
   useScroll,
@@ -95,7 +96,7 @@ export default function ExperienceSection({
     [reduceMotion]
   );
 
-  const item = useMemo(
+  const item = useMemo<Variants>(
     () => ({
       hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 18 },
       show: reduceMotion
@@ -173,7 +174,7 @@ interface ExperienceItemProps {
   entry: ExperienceEntry;
   index: number;
   activeIndex: number;
-  item: Record<string, unknown>;
+  item: Variants;
   reduceMotion: boolean;
   onActive: (index: number) => void;
 }
@@ -234,15 +235,21 @@ function ExperienceItem({
           {entry.date}
         </p>
 
-        <h3 className="mt-2 text-[1.25rem] font-semibold text-[var(--text-primary)]">
-          {entry.role} ·{" "}
-          <a
-            href={entry.link}
-            className="text-[var(--text-secondary)] transition-colors duration-200 ease-out hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-primary)]"
-          >
-            {entry.company}
-          </a>
-        </h3>
+                  <h3 className="mt-2 text-[1.25rem] font-semibold text-[var(--text-primary)]">
+                    {entry.role} ·{" "}
+                    {entry.link ? (
+                      <a
+                        href={entry.link}
+                        className="text-[var(--text-secondary)] transition-colors duration-200 ease-out hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-primary)]"
+                      >
+                        {entry.company}
+                      </a>
+                    ) : (
+                      <span className="text-[var(--text-secondary)]">
+                        {entry.company}
+                      </span>
+                    )}
+                  </h3>
 
         {entry.highlights?.length ? (
           <ul className="mt-3 max-w-[760px] space-y-2 text-sm leading-6 text-[var(--text-secondary)]">
