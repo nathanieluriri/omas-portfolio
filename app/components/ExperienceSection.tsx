@@ -65,7 +65,7 @@ export default function ExperienceSection({
   experience = fallbackExperience,
   resumeUrl = "/resume.pdf",
 }: ExperienceSectionProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
   const railRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
 
