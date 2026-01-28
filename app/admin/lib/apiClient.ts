@@ -4,11 +4,15 @@ import { getAccessToken, getRefreshToken, setAccessToken, setRefreshToken } from
 
 async function refreshTokens() {
   const refreshToken = getRefreshToken();
-  if (!refreshToken) return null;
+  const accessToken = getAccessToken();
+  if (!refreshToken || !accessToken) return null;
 
   const response = await fetch(`${API_BASE_URL}/v1/users/refresh`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
 
