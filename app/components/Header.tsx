@@ -18,7 +18,7 @@ export default function Header({ navItems = fallbackNav }: HeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-transparent bg-transparent">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[color-mix(in_oklab,var(--bg-primary)_70%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 py-6 md:px-10">
         <ThemeToggle />
         <nav className="flex items-center gap-6 text-sm italic text-[var(--text-muted)]">

@@ -1,33 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
-  --bg-primary: #0e0f12;
-  --bg-surface: #15171c;
-  --bg-surface-hover: #1b1e24;
-  --bg-divider: #23262d;
-  --text-primary: #ffffff;
-  --text-secondary: #b3b8c4;
-  --text-muted: #8a8f9c;
-  --accent-primary: #ff6a00;
-  --accent-secondary: #22c55e;
-  --accent-muted: rgba(255, 106, 0, 0.15);
-  --status-open: #22c55e;
+  color-scheme: light;
+  --bg-primary-light: #f7f7f8;
+  --bg-surface-light: #ffffff;
+  --bg-surface-hover-light: #f1f3f6;
+  --bg-divider-light: #d7dbe3;
+  --text-primary-light: #0f1115;
+  --text-secondary-light: #4b5160;
+  --text-muted-light: #6b7280;
+  --accent-primary-light: #ff6a00;
+  --accent-muted-light: #f2b28e;
+  --accent-secondary-light: #16a34a;
+  --status-open-light: #16a34a;
+
+  --bg-primary: var(--bg-primary-light);
+  --bg-surface: var(--bg-surface-light);
+  --bg-surface-hover: var(--bg-surface-hover-light);
+  --bg-divider: var(--bg-divider-light);
+  --text-primary: var(--text-primary-light);
+  --text-secondary: var(--text-secondary-light);
+  --text-muted: var(--text-muted-light);
+  --accent-primary: var(--accent-primary-light);
+  --accent-muted: var(--accent-muted-light);
+  --accent-secondary: var(--accent-secondary-light);
+  --status-open: var(--status-open-light);
 }
 
-[data-theme="light"] {
-  color-scheme: light;
-  --bg-primary: #f7f7f8;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #f1f3f6;
-  --bg-divider: #d7dbe3;
-  --text-primary: #0f1115;
-  --text-secondary: #4b5160;
-  --text-muted: #6b7280;
-  --accent-primary: #ff6a00;
-  --accent-secondary: #16a34a;
-  --accent-muted: rgba(255, 106, 0, 0.12);
-  --status-open: #16a34a;
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-primary: color-mix(in oklab, var(--bg-primary-light) 12%, #000 88%);
+  --bg-surface: color-mix(in oklab, var(--bg-surface-light) 12%, #000 88%);
+  --bg-surface-hover: color-mix(
+    in oklab,
+    var(--bg-surface-hover-light) 16%,
+    #000 84%
+  );
+  --bg-divider: color-mix(in oklab, var(--bg-divider-light) 24%, #000 76%);
+  --text-primary: color-mix(in oklab, var(--text-primary-light) 12%, #fff 88%);
+  --text-secondary: color-mix(
+    in oklab,
+    var(--text-secondary-light) 14%,
+    #fff 86%
+  );
+  --text-muted: color-mix(in oklab, var(--text-muted-light) 20%, #fff 80%);
+  --accent-primary: color-mix(
+    in oklab,
+    var(--accent-primary-light) 85%,
+    #fff 15%
+  );
+  --accent-muted: color-mix(
+    in oklab,
+    var(--accent-primary) 18%,
+    transparent
+  );
+  --accent-secondary: color-mix(
+    in oklab,
+    var(--accent-secondary-light) 85%,
+    #fff 15%
+  );
+  --status-open: color-mix(
+    in oklab,
+    var(--status-open-light) 85%,
+    #fff 15%
+  );
 }
 
 @theme inline {
