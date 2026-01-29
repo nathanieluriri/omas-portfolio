@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Oma Portfolio
+
+A Next.js portfolio site with a full admin panel for managing content, theme, and SEO. Content is fetched from an external API and rendered on the public site with ISR + on-demand revalidation.
+
+## Features
+- Public portfolio pages powered by API-driven content
+- Admin dashboard for content, theme, SEO, and settings
+- AI Suggestions flow for drafting updates from a resume
+- Theme presets + advanced custom colors with light/dark previews
+- On-demand revalidation endpoint for instant updates
+
+## Tech Stack
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- TypeScript
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file in the project root:
 
-## Learn More
+```bash
+# API used by the admin client and login flow
+NEXT_PUBLIC_API_BASE_URL="https://your-api.example.com"
 
-To learn more about Next.js, take a look at the following resources:
+# Portfolio owner (used by the public site fetch)
+NEXT_PUBLIC_USER_ID="your-user-id"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Server-side API base URL for ISR fetches
+API_BASE_URL="https://your-api.example.com"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Optional: secure the revalidate endpoint
+REVALIDATE_SECRET="your-random-secret"
+```
 
-## Deploy on Vercel
+Notes:
+- `NEXT_PUBLIC_API_BASE_URL` defaults to `https://oma-api.uriri.com.ng` if not provided.
+- `NEXT_PUBLIC_USER_ID` defaults to a placeholder user in `lib/config.ts` for local use.
+- `API_BASE_URL` is required for server-side data fetches in `lib/server/portfolio.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Admin Routes
+- `/admin/login` – Google sign-in
+- `/admin/dashboard` – system status + quick links
+- `/admin/content` – edit hero, experience, projects, skills, contacts, footer, navigation
+- `/admin/theme` – theme presets, previews, and advanced customization
+- `/admin/ai-suggestions` – resume-based suggestions flow
+- `/admin/seo` – SEO settings
+- `/admin/settings` – account/portfolio settings
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Revalidation
+
+Trigger ISR refresh via:
+
+```
+POST /api/revalidate
+Headers:
+  x-revalidate-token: <REVALIDATE_SECRET>
+```
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
