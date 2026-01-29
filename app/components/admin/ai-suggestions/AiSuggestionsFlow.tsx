@@ -178,27 +178,80 @@ export default function AiSuggestionsFlow() {
 
   const stepClass = (state: "active" | "done" | "locked") =>
     `transition-all duration-300 ${
-      state === "locked" ? "opacity-40 pointer-events-none" : "opacity-100"
+      state === "locked" ? "opacity-35 pointer-events-none" : "opacity-100"
     }`;
+
+  const stepCardClass = (state: "active" | "done" | "locked") =>
+    state === "active"
+      ? "border-[var(--accent-primary)]/40 shadow-[0_0_0_1px_rgba(255,106,0,0.2)]"
+      : state === "done"
+        ? "border-[var(--accent-primary)]/20"
+        : "";
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-        <span className={step === "upload" ? "text-[var(--text-primary)]" : ""}>
-          Upload
-        </span>
-        <span>→</span>
-        <span className={step === "review" ? "text-[var(--text-primary)]" : ""}>
-          Review
-        </span>
-        <span>→</span>
-        <span className={step === "apply" ? "text-[var(--text-primary)]" : ""}>
-          Apply
-        </span>
-      </div>
+      <SurfaceCard className="bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.08),transparent_55%)]">
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">
+              AI Suggestions
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              Resume-driven updates
+            </h2>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              Upload your resume, review AI suggestions, and apply changes to your portfolio.
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              { key: "upload", label: "Upload", detail: "Add your resume" },
+              { key: "review", label: "Review", detail: "Pick suggestions" },
+              { key: "apply", label: "Apply", detail: "Update content" },
+            ].map((item, index) => {
+              const isActive = step === item.key;
+              const isDone =
+                ["review", "apply", "success"].includes(step) &&
+                item.key === "upload"
+                  ? true
+                  : ["apply", "success"].includes(step) && item.key === "review";
+              return (
+                <div
+                  key={item.key}
+                  className={`rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-3 ${
+                    isActive
+                      ? "border-[var(--accent-primary)]/50"
+                      : isDone
+                        ? "border-[var(--accent-primary)]/20"
+                        : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                        isActive
+                          ? "bg-[var(--accent-primary)] text-white"
+                          : "bg-[var(--bg-surface)] text-[var(--text-muted)]"
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">
+                        {item.label}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">{item.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </SurfaceCard>
 
       <div className={stepClass(stepState("upload"))}>
-        <SurfaceCard>
+        <SurfaceCard className={stepCardClass(stepState("upload"))}>
           <div className="flex flex-col gap-4">
             <div>
               <p className={aiStyles.label}>Step 1 · Upload resume</p>
@@ -210,7 +263,7 @@ export default function AiSuggestionsFlow() {
               </p>
             </div>
             <div
-              className={`rounded-2xl border border-dashed border-[var(--bg-divider)] bg-[var(--bg-primary)] p-5 transition-colors ${
+              className={`rounded-2xl border border-dashed border-[var(--bg-divider)] bg-[var(--bg-primary)] p-6 transition-colors ${
                 isDragActive ? "border-[var(--accent-primary)]/70" : ""
               }`}
               onDragEnter={(event) => {
@@ -225,30 +278,47 @@ export default function AiSuggestionsFlow() {
                 handleFileSelect(event.dataTransfer.files?.[0] ?? null);
               }}
             >
-              <p className={aiStyles.label}>Upload file</p>
-              <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                Drag and drop your resume here, or select a file.
-              </p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <label className={`${aiStyles.button} ${aiStyles.secondaryButton} cursor-pointer`}>
-                  Choose file
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept={allowedTypes.join(",")}
-                    onChange={(event) =>
-                      handleFileSelect(event.target.files?.[0] ?? null)
-                    }
-                  />
-                </label>
-                {file ? (
-                  <span className="text-sm text-[var(--text-primary)]">{file.name}</span>
-                ) : (
-                  <span className="text-sm text-[var(--text-muted)]">No file selected</span>
-                )}
-              </div>
-              <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                Supported: {allowedLabels.join(" · ")}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] text-xl">
+                    ⇪
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                      Upload resume
+                    </p>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      Drag and drop or choose a file to begin.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label
+                    className={`${aiStyles.button} ${aiStyles.primaryButton} cursor-pointer`}
+                  >
+                    Choose file
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept={allowedTypes.join(",")}
+                      onChange={(event) =>
+                        handleFileSelect(event.target.files?.[0] ?? null)
+                      }
+                    />
+                  </label>
+                  {file ? (
+                    <span className="text-sm text-[var(--text-primary)]">
+                      Selected: {file.name}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-[var(--text-muted)]">
+                      No file selected
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                  Supported: {allowedLabels.join(" · ")}
+                </div>
               </div>
             </div>
 
@@ -275,7 +345,7 @@ export default function AiSuggestionsFlow() {
       </div>
 
       <div className={stepClass(stepState("review"))}>
-        <SurfaceCard>
+        <SurfaceCard className={stepCardClass(stepState("review"))}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -352,7 +422,7 @@ export default function AiSuggestionsFlow() {
       </div>
 
       <div className={stepClass(stepState("apply"))}>
-        <SurfaceCard>
+        <SurfaceCard className={stepCardClass(stepState("apply"))}>
           <div className="flex flex-col gap-4">
             <div>
               <p className={aiStyles.label}>Step 3 · Apply updates</p>
