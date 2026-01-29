@@ -2,6 +2,9 @@
 
 :root {
   color-scheme: light;
+  --font-inter: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-geist-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
   --bg-primary-light: #f7f7f8;
   --bg-surface-light: #ffffff;
   --bg-surface-hover-light: #f1f3f6;
