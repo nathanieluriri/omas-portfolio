@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "intro.js/introjs.css";
 
 :root {
   color-scheme: light;
@@ -201,6 +202,64 @@ a {
 
 .animate-status-glow {
   animation: status-glow 3.4s ease-out infinite;
+}
+
+.introjs-overlay {
+  background: rgba(7, 8, 12, 0.8);
+}
+
+.introjs-tooltip {
+  min-width: 260px;
+  max-width: 360px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--bg-divider) 70%, transparent);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  padding: 16px 18px;
+}
+
+.introjs-tooltiptext {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.introjs-helperLayer {
+  border-radius: 16px;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-primary) 40%, transparent),
+    0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.introjs-button {
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--bg-divider) 70%, transparent);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 6px 14px;
+  transition: all 180ms ease;
+}
+
+.introjs-button:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in oklab, var(--accent-primary) 55%, transparent);
+}
+
+.introjs-nextbutton {
+  background: var(--accent-primary);
+  color: white;
+  border-color: transparent;
+}
+
+.introjs-nextbutton:hover {
+  filter: brightness(1.05);
+}
+
+.introjs-skipbutton {
+  color: var(--text-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {

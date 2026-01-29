@@ -6,6 +6,9 @@ import SurfaceCard from "../../components/SurfaceCard";
 import Button from "../../components/Button";
 import { aiStyles } from "../../../components/admin/ai-suggestions/styles";
 import { useAiSuggestions } from "../../../components/admin/ai-suggestions/AiSuggestionsProvider";
+import AiSuggestionsTour, {
+  setAiSuggestionsTourStep,
+} from "../../../components/admin/ai-suggestions/AiSuggestionsTour";
 
 export default function AiSuggestionsFinalPage() {
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function AiSuggestionsFinalPage() {
         { label: "Final" },
       ]}
     >
+      <AiSuggestionsTour page="final" />
       <SurfaceCard className={aiStyles.card}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
@@ -54,7 +58,14 @@ export default function AiSuggestionsFinalPage() {
             >
               Back to selections
             </Button>
-            <Button variant="primary" onClick={() => router.push("/admin/content")}>
+            <Button
+              variant="primary"
+              data-tour="ai-content"
+              onClick={() => {
+                setAiSuggestionsTourStep("done");
+                router.push("/admin/content");
+              }}
+            >
               Open Content editor
             </Button>
           </div>

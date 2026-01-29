@@ -16,13 +16,13 @@ const entries = [
   { label: "SEO", href: "/admin/seo", group: "Pages" },
   { label: "Assets", href: "/admin/assets", group: "Pages" },
   { label: "Settings", href: "/admin/settings", group: "Pages" },
-  { label: "Hero", href: "/admin/content#hero", group: "Content" },
-  { label: "Experience", href: "/admin/content#experience", group: "Content" },
-  { label: "Projects", href: "/admin/content#projects", group: "Content" },
-  { label: "Skills", href: "/admin/content#skills", group: "Content" },
-  { label: "Contacts", href: "/admin/content#contacts", group: "Content" },
-  { label: "Navigation", href: "/admin/content#navigation", group: "Content" },
-  { label: "Footer", href: "/admin/content#footer", group: "Content" },
+  { label: "Hero", href: "/admin/content/hero", group: "Content" },
+  { label: "Experience", href: "/admin/content/experience", group: "Content" },
+  { label: "Projects", href: "/admin/content/projects", group: "Content" },
+  { label: "Skills", href: "/admin/content/skills", group: "Content" },
+  { label: "Contacts", href: "/admin/content/contacts", group: "Content" },
+  { label: "Navigation", href: "/admin/content/navigation", group: "Content" },
+  { label: "Footer", href: "/admin/content/footer", group: "Content" },
 ];
 
 type Entry = (typeof entries)[number] & {

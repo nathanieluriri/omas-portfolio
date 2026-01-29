@@ -6,7 +6,12 @@ import SurfaceCard from "../../components/SurfaceCard";
 import Button from "../../components/Button";
 import { aiStyles } from "../../../components/admin/ai-suggestions/styles";
 import { allowedLabels, allowedTypes } from "../../../components/admin/ai-suggestions/constants";
-import { useAiSuggestions } from "../../../components/admin/ai-suggestions/AiSuggestionsProvider";
+import {
+  useAiSuggestions,
+} from "../../../components/admin/ai-suggestions/AiSuggestionsProvider";
+import AiSuggestionsTour, {
+  setAiSuggestionsTourStep,
+} from "../../../components/admin/ai-suggestions/AiSuggestionsTour";
 
 export default function AiSuggestionsAnalysisPage() {
   const router = useRouter();
@@ -15,7 +20,10 @@ export default function AiSuggestionsAnalysisPage() {
 
   const handleAnalyze = async () => {
     const ok = await analyzeResume();
-    if (ok) router.push("/admin/ai-suggestions/selections");
+    if (ok) {
+      setAiSuggestionsTourStep("selections");
+      router.push("/admin/ai-suggestions/selections");
+    }
   };
 
   return (
@@ -27,6 +35,7 @@ export default function AiSuggestionsAnalysisPage() {
         { label: "Analysis" },
       ]}
     >
+      <AiSuggestionsTour page="analysis" />
       <SurfaceCard className={aiStyles.card}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
@@ -39,6 +48,7 @@ export default function AiSuggestionsAnalysisPage() {
           </div>
 
           <div
+            id="ai-tour-upload"
             className="rounded-2xl border border-dashed border-[var(--bg-divider)] bg-[var(--bg-primary)] p-6 transition-colors"
             onDragEnter={(event) => {
               event.preventDefault();
@@ -99,7 +109,12 @@ export default function AiSuggestionsAnalysisPage() {
             >
               Back to tutorial
             </Button>
-            <Button variant="primary" onClick={handleAnalyze} disabled={!file || isAnalyzing}>
+            <Button
+              variant="primary"
+              onClick={handleAnalyze}
+              disabled={!file || isAnalyzing}
+              data-tour="ai-analyze"
+            >
               {isAnalyzing ? "Analyzing..." : "Analyze resume"}
             </Button>
           </div>
