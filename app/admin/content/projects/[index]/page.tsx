@@ -33,7 +33,7 @@ export default function ProjectEditorPage() {
   const entry = data.projects?.[index];
 
   useEffect(() => {
-    if (!isNew || createdRef.current) return;
+    if (!isNew || createdRef.current || loading) return;
     createdRef.current = true;
     const next = [
       ...(data.projects ?? []),
@@ -41,7 +41,7 @@ export default function ProjectEditorPage() {
     ];
     setDraft({ ...data, projects: next });
     router.replace(`/admin/content/projects/${next.length - 1}`);
-  }, [data, isNew, router, setDraft]);
+  }, [data, isNew, loading, router, setDraft]);
 
   const updateProject = (next: Partial<ProjectEntry>) => {
     const list = [...(data.projects ?? [])];

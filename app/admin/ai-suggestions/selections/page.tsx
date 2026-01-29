@@ -6,9 +6,6 @@ import SurfaceCard from "../../components/SurfaceCard";
 import Button from "../../components/Button";
 import { aiStyles } from "../../../components/admin/ai-suggestions/styles";
 import { useAiSuggestions } from "../../../components/admin/ai-suggestions/AiSuggestionsProvider";
-import AiSuggestionsTour, {
-  setAiSuggestionsTourStep,
-} from "../../../components/admin/ai-suggestions/AiSuggestionsTour";
 
 const confidenceLabel = (value: number) => {
   const normalized = value > 1 ? value / 100 : value;
@@ -32,7 +29,6 @@ export default function AiSuggestionsSelectionsPage() {
   const handleApply = async () => {
     const ok = await applySelected();
     if (ok) {
-      setAiSuggestionsTourStep("final");
       router.push("/admin/ai-suggestions/final");
     }
   };
@@ -48,7 +44,6 @@ export default function AiSuggestionsSelectionsPage() {
         { label: "Selections" },
       ]}
     >
-      <AiSuggestionsTour page="selections" />
       <SurfaceCard className={aiStyles.card}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
@@ -155,7 +150,6 @@ export default function AiSuggestionsSelectionsPage() {
                 variant="primary"
                 onClick={handleApply}
                 disabled={selectedSuggestions.length === 0 || isApplying}
-                data-tour="ai-apply"
               >
                 {isApplying ? "Applying..." : "Apply and continue"}
               </Button>

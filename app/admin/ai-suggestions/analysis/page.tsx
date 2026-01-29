@@ -9,9 +9,6 @@ import { allowedLabels, allowedTypes } from "../../../components/admin/ai-sugges
 import {
   useAiSuggestions,
 } from "../../../components/admin/ai-suggestions/AiSuggestionsProvider";
-import AiSuggestionsTour, {
-  setAiSuggestionsTourStep,
-} from "../../../components/admin/ai-suggestions/AiSuggestionsTour";
 
 export default function AiSuggestionsAnalysisPage() {
   const router = useRouter();
@@ -21,7 +18,6 @@ export default function AiSuggestionsAnalysisPage() {
   const handleAnalyze = async () => {
     const ok = await analyzeResume();
     if (ok) {
-      setAiSuggestionsTourStep("selections");
       router.push("/admin/ai-suggestions/selections");
     }
   };
@@ -35,7 +31,6 @@ export default function AiSuggestionsAnalysisPage() {
         { label: "Analysis" },
       ]}
     >
-      <AiSuggestionsTour page="analysis" />
       <SurfaceCard className={aiStyles.card}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
@@ -107,13 +102,12 @@ export default function AiSuggestionsAnalysisPage() {
               variant="secondary"
               onClick={() => router.push("/admin/ai-suggestions")}
             >
-              Back to tutorial
+              Back to overview
             </Button>
             <Button
               variant="primary"
               onClick={handleAnalyze}
               disabled={!file || isAnalyzing}
-              data-tour="ai-analyze"
             >
               {isAnalyzing ? "Analyzing..." : "Analyze resume"}
             </Button>

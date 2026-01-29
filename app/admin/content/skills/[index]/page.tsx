@@ -33,12 +33,12 @@ export default function SkillGroupEditorPage() {
   const group = data.skillGroups?.[index];
 
   useEffect(() => {
-    if (!isNew || createdRef.current) return;
+    if (!isNew || createdRef.current || loading) return;
     createdRef.current = true;
     const next = [...(data.skillGroups ?? []), { title: "", items: [] }];
     setDraft({ ...data, skillGroups: next });
     router.replace(`/admin/content/skills/${next.length - 1}`);
-  }, [data, isNew, router, setDraft]);
+  }, [data, isNew, loading, router, setDraft]);
 
   const updateSkillGroup = (next: Partial<SkillGroup>) => {
     const list = [...(data.skillGroups ?? [])];

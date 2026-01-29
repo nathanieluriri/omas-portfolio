@@ -32,12 +32,12 @@ export default function NavItemEditorPage() {
   const item = data.navItems?.[index];
 
   useEffect(() => {
-    if (!isNew || createdRef.current) return;
+    if (!isNew || createdRef.current || loading) return;
     createdRef.current = true;
     const next = [...(data.navItems ?? []), { label: "", href: "" }];
     setDraft({ ...data, navItems: next });
     router.replace(`/admin/content/navigation/${next.length - 1}`);
-  }, [data, isNew, router, setDraft]);
+  }, [data, isNew, loading, router, setDraft]);
 
   const updateNavItem = (next: Partial<NavItem>) => {
     const list = [...(data.navItems ?? [])];

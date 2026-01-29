@@ -32,7 +32,7 @@ export default function ExperienceEditorPage() {
   const entry = data.experience?.[index];
 
   useEffect(() => {
-    if (!isNew || createdRef.current) return;
+    if (!isNew || createdRef.current || loading) return;
     createdRef.current = true;
     const next = [
       ...(data.experience ?? []),
@@ -40,7 +40,7 @@ export default function ExperienceEditorPage() {
     ];
     setDraft({ ...data, experience: next });
     router.replace(`/admin/content/experience/${next.length - 1}`);
-  }, [data, isNew, router, setDraft]);
+  }, [data, isNew, loading, router, setDraft]);
 
   const updateExperience = (next: Partial<ExperienceEntry>) => {
     const list = [...(data.experience ?? [])];
