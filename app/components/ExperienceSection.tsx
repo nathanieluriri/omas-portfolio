@@ -67,8 +67,20 @@ export default function ExperienceSection({
   resumeUrl = "/resume.pdf",
 }: ExperienceSectionProps) {
   const reduceMotion = useReducedMotion() ?? false;
+  const [isMobile, setIsMobile] = useState(false);
   const railRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const handleChange = () => setIsMobile(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  const shouldAnimate = !reduceMotion && !isMobile;
 
   const handleActive = useCallback((index: number) => {
     setActiveIndex((prev) => (index > prev ? index : prev));
@@ -85,21 +97,21 @@ export default function ExperienceSection({
     () => ({
       hidden: {},
       show: {
-        transition: reduceMotion
-          ? {}
-          : {
+        transition: shouldAnimate
+          ? {
               staggerChildren: 0.12,
               delayChildren: 0.08,
-            },
+            }
+          : {},
       },
     }),
-    [reduceMotion]
+    [shouldAnimate]
   );
 
   const item = useMemo<Variants>(
     () => ({
-      hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 18 },
-      show: reduceMotion
+      hidden: shouldAnimate ? { opacity: 0, y: 12 } : { opacity: 1 },
+      show: !shouldAnimate
         ? { opacity: 1 }
         : {
             opacity: 1,
@@ -107,8 +119,14 @@ export default function ExperienceSection({
             transition: { duration: 0.45, ease: "easeOut" },
           },
     }),
-    [reduceMotion]
+    [shouldAnimate]
   );
+
+  useEffect(() => {
+    if (!shouldAnimate && experience.length > 0) {
+      setActiveIndex(experience.length - 1);
+    }
+  }, [experience.length, shouldAnimate]);
 
   return (
     <section id="experience" className="py-24 md:py-28">
@@ -134,7 +152,7 @@ export default function ExperienceSection({
           <motion.div
             aria-hidden="true"
             className="pointer-events-none absolute left-2 top-0 w-px origin-top"
-            style={{ height: railHeight }}
+            style={{ height: shouldAnimate ? railHeight : "100%" }}
           >
             <div
               className="h-full w-full"
@@ -147,9 +165,9 @@ export default function ExperienceSection({
 
           <motion.div
             variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.25 }}
+            initial={shouldAnimate ? "hidden" : "show"}
+            whileInView={shouldAnimate ? "show" : undefined}
+            viewport={shouldAnimate ? { once: true, amount: 0.25 } : undefined}
             className="relative pl-10"
           >
             {experience.map((entry, index) => (
@@ -161,6 +179,7 @@ export default function ExperienceSection({
                 item={item}
                 reduceMotion={reduceMotion}
                 onActive={handleActive}
+                shouldAnimate={shouldAnimate}
               />
             ))}
           </motion.div>
@@ -176,6 +195,7 @@ interface ExperienceItemProps {
   activeIndex: number;
   item: Variants;
   reduceMotion: boolean;
+  shouldAnimate: boolean;
   onActive: (index: number) => void;
 }
 
@@ -185,13 +205,15 @@ function ExperienceItem({
   activeIndex,
   item,
   reduceMotion,
+  shouldAnimate,
   onActive,
 }: ExperienceItemProps) {
   const itemRef = useRef<HTMLElement | null>(null);
-  const isInView = useInView(itemRef, {
+  const observedInView = useInView(itemRef, {
     amount: 0.35,
     margin: "-20% 0px -50% 0px",
   });
+  const isInView = shouldAnimate ? observedInView : true;
 
   useEffect(() => {
     if (isInView) {
