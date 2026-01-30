@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { fetchPortfolioLive } from "../../lib/server/portfolio";
+import { fetchPortfolioISR, fetchPortfolioLive } from "../../lib/server/portfolio";
 import { themeToStyle } from "../../lib/theme";
 
 export async function generateMetadata(): Promise<Metadata> {
