@@ -40,24 +40,30 @@ export default function usePortfolioDraft() {
     load();
   }, [load]);
 
-  const save = useCallback(async () => {
-    if (!draft) return null;
-    setSaving(true);
-    setError(null);
-    try {
-      const data = portfolio
-        ? await updatePortfolio(draft)
-        : await createPortfolio(draft);
-      setPortfolio(data);
-      setDraft(data ? { ...data } : null);
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save.");
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }, [draft, portfolio]);
+  const saveDraft = useCallback(
+    async (next?: PortfolioOut | null) => {
+      const payload = next ?? draft;
+      if (!payload) return null;
+      setSaving(true);
+      setError(null);
+      try {
+        const data = portfolio
+          ? await updatePortfolio(payload)
+          : await createPortfolio(payload);
+        setPortfolio(data);
+        setDraft(data ? { ...data } : null);
+        return data;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to save.");
+        return null;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [draft, portfolio]
+  );
+
+  const save = useCallback(() => saveDraft(), [saveDraft]);
 
   const discard = useCallback(() => {
     setDraft(portfolio ? { ...portfolio } : null);
@@ -75,6 +81,7 @@ export default function usePortfolioDraft() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
     reload: load,

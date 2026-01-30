@@ -26,6 +26,7 @@ export default function ProjectEditorPage() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
   } = usePortfolioDraft();
@@ -77,11 +78,15 @@ export default function ProjectEditorPage() {
     setDraft({ ...data, projects: list });
   };
 
-  const removeProject = () => {
+  const removeProject = async () => {
     const list = [...(data.projects ?? [])];
     list.splice(index, 1);
-    setDraft({ ...data, projects: list });
-    router.push("/admin/content/projects");
+    const next = { ...data, projects: list };
+    setDraft(next);
+    const saved = await saveDraft(next);
+    if (saved) {
+      router.push("/admin/content/projects");
+    }
   };
 
   if (loading) {

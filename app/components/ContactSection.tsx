@@ -96,17 +96,22 @@ export default function ContactSection({
   contacts = fallbackContacts,
 }: ContactSectionProps) {
   return (
-    <section id="contact" className="py-24 md:py-28">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
-        <h2 className="text-[clamp(2rem,3vw,2.25rem)] font-semibold leading-tight text-[var(--text-primary)]">
-          Contact
-        </h2>
+    <section id="contact" className="py-20 md:py-24">
+      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-[clamp(2rem,3vw,2.25rem)] font-semibold leading-tight text-[var(--text-primary)]">
+            Let&apos;s Talk
+          </h2>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Open to thoughtful collaborations and long-term system work.
+          </p>
+        </div>
         <div className="grid gap-6 md:grid-cols-2">
-        {contacts.map((contact, index) => (
+          {contacts.map((contact, index) => (
             <a
               key={contact.label}
               href={contact.href}
-              className="group flex flex-col gap-2 rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-6 text-left transition-all duration-200 ease-out hover:-translate-y-1 hover:bg-[var(--bg-surface-hover)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-primary)] motion-safe:animate-[fade-up_0.7s_ease-out]"
+              className="group flex flex-col gap-2 rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-6 text-left transition-all duration-200 ease-out hover:-translate-y-1 hover:bg-[var(--bg-surface-hover)] hover:shadow-[0_16px_28px_rgba(0,0,0,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-primary)] motion-safe:animate-[fade-up_0.7s_ease-out]"
               style={{ animationDelay: `${100 + index * 90}ms` }}
             >
               <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.14em] text-[var(--text-muted)]">

@@ -27,8 +27,14 @@ export default async function Home() {
 
   return (
     <>
-      <Hero hero={portfolio.hero} resumeUrl={portfolio.resumeUrl} />
+      <Hero hero={portfolio.hero} />
+      <div className="mx-auto w-full max-w-[960px] px-6 md:px-10">
+        <div className="h-px w-full bg-[var(--bg-divider)]/60" />
+      </div>
       <ToolsSection skillGroups={portfolio.skillGroups ?? []} />
+      <div className="mx-auto w-full max-w-[960px] px-6 md:px-10">
+        <div className="h-px w-full bg-[var(--bg-divider)]/60" />
+      </div>
       <ContactSection contacts={portfolio.contacts ?? []} />
     </>
   );

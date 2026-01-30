@@ -1,13 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   type Variants,
-  useInView,
   useReducedMotion,
-  useScroll,
-  useTransform,
 } from "framer-motion";
 
 import PrimaryButton from "./ui/PrimaryButton";
@@ -69,7 +66,6 @@ export default function ExperienceSection({
   const reduceMotion = useReducedMotion() ?? false;
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const railRef = useRef<HTMLDivElement | null>(null);
-  const [activeIndex, setActiveIndex] = useState(-1);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -82,16 +78,6 @@ export default function ExperienceSection({
 
   const enableAnimations = !reduceMotion && isMobile === false;
 
-  const handleActive = useCallback((index: number) => {
-    setActiveIndex((prev) => (index > prev ? index : prev));
-  }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: railRef,
-    offset: ["start 0.85", "end 0.35"],
-  });
-
-  const railHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   const container = useMemo(
     () => ({
@@ -122,64 +108,40 @@ export default function ExperienceSection({
     [enableAnimations]
   );
 
-  useEffect(() => {
-    if (!enableAnimations && experience.length > 0) {
-      setActiveIndex(experience.length - 1);
-    }
-  }, [experience.length, enableAnimations]);
-
   return (
     <section id="experience" className="py-24 md:py-28">
-      <div className="mx-auto w-full max-w-[1200px] px-6 md:px-10">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto w-full max-w-[960px] px-6 md:px-10">
+        <div className="flex flex-col gap-4   ">
           <h2 className="text-[clamp(2rem,3vw,2.25rem)] font-semibold leading-tight text-[var(--text-primary)]">
             Experience
           </h2>
 
-          <div className="w-full md:w-auto">
+          <div className="w-full md:w-auto ">
             <PrimaryButton
               href={resumeUrl ?? "/resume.pdf"}
               label="Download Resume"
               download
-              className="w-full md:w-auto"
+              className="w-full md:w-auto px-4 py-2 text-xs uppercase tracking-[0.18em]"
+              style={{ boxShadow: "none", opacity: 0.85 }}
             />
           </div>
         </div>
 
-        <div ref={railRef} className="relative mt-10 grid grid-cols-1 gap-8">
-          <div className="pointer-events-none absolute left-2 top-0 h-full w-px bg-[var(--bg-divider)]" />
-
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-2 top-0 w-px origin-top"
-            style={{ height: enableAnimations ? railHeight : "100%" }}
-          >
-            <div
-              className="h-full w-full"
-              style={{
-                background:
-                  "linear-gradient(180deg, var(--accent-primary), rgba(255,106,0,0.0))",
-              }}
-            />
-          </motion.div>
-
+        <div ref={railRef} className="relative mt-12 grid grid-cols-1 gap-10">
+          <div className="pointer-events-none absolute left-1 top-0 h-full w-px bg-[var(--bg-divider)]/40" />
           <motion.div
             variants={container}
             initial={enableAnimations ? "hidden" : "show"}
             whileInView={enableAnimations ? "show" : undefined}
             viewport={enableAnimations ? { once: true, amount: 0.25 } : undefined}
-            className="relative pl-10"
+            className="relative pl-12 md:pl-14"
           >
             {experience.map((entry, index) => (
               <ExperienceItem
-                key={`${entry.role}-${entry.company}`}
+                key={`${entry.role || "role"}-${entry.company || "company"}-${entry.date || "date"}-${index}`}
                 entry={entry}
                 index={index}
-                activeIndex={activeIndex}
                 item={item}
-                reduceMotion={reduceMotion}
-                onActive={handleActive}
-                shouldAnimate={enableAnimations}
               />
             ))}
           </motion.div>
@@ -192,106 +154,82 @@ export default function ExperienceSection({
 interface ExperienceItemProps {
   entry: ExperienceEntry;
   index: number;
-  activeIndex: number;
   item: Variants;
-  reduceMotion: boolean;
-  shouldAnimate: boolean;
-  onActive: (index: number) => void;
 }
 
 function ExperienceItem({
   entry,
   index,
-  activeIndex,
   item,
-  reduceMotion,
-  shouldAnimate,
-  onActive,
 }: ExperienceItemProps) {
   const itemRef = useRef<HTMLElement | null>(null);
-  const observedInView = useInView(itemRef, {
-    amount: 0.35,
-    margin: "-20% 0px -50% 0px",
-  });
-  const isInView = shouldAnimate ? observedInView : true;
-
-  useEffect(() => {
-    if (isInView) {
-      onActive(index);
-    }
-  }, [index, isInView, onActive]);
-
-  const isActive = index <= activeIndex;
+  const isCurrent = entry.current;
+  const dotColor = isCurrent ? "bg-[var(--status-open)]" : "bg-[var(--bg-divider)]/60";
+  const bulletColor = isCurrent
+    ? "bg-[var(--accent-primary)]/80"
+    : "bg-[var(--text-muted)]/40";
 
   return (
     <motion.article
       ref={itemRef}
       variants={item}
-      className="group relative mb-10 last:mb-0"
+      className="group relative mb-14 last:mb-0"
     >
-      <div className="absolute -left-[34px] top-[10px]">
+      <div className="absolute -left-[43px] top-[8px]">
         <span
           className={
-            "relative block h-3.5 w-3.5 rounded-full border-2 border-[var(--bg-primary)] transition-transform duration-200 ease-out group-hover:scale-110 " +
-            (isActive ? "bg-[var(--accent-primary)]" : "bg-[var(--bg-divider)]")
+            "relative block h-2.5 w-2.5 rounded-full transition-transform duration-200 ease-out group-hover:scale-110 " +
+            dotColor
           }
         />
-
-        {entry.current && (
-          <span
-            aria-hidden="true"
-            className={
-              "absolute inset-0 rounded-full " +
-              (reduceMotion ? "" : "animate-[pulse_2.2s_ease-out_infinite]")
-            }
-            style={{
-              boxShadow:
-                "0 0 0 6px rgba(255,106,0,0.12), 0 0 18px rgba(255,106,0,0.25)",
-            }}
-          />
-        )}
       </div>
 
-      <div className="rounded-2xl border border-transparent p-4 -ml-4 transition-all duration-200 ease-out group-hover:border-[var(--bg-divider)] group-hover:bg-[var(--bg-surface)]/60">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--text-muted)]">
+      <div className="pl-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {entry.date}
         </p>
 
-                  <h3 className="mt-2 text-[1.25rem] font-semibold text-[var(--text-primary)]">
-                    {entry.role} ·{" "}
-                    {entry.link ? (
-                      <a
-                        href={entry.link}
-                        className="text-[var(--text-secondary)] transition-colors duration-200 ease-out hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-primary)]"
-                      >
-                        {entry.company}
-                      </a>
-                    ) : (
-                      <span className="text-[var(--text-secondary)]">
-                        {entry.company}
-                      </span>
-                    )}
-                  </h3>
+        <h3
+          className={
+            "mt-2 text-[1.35rem] font-semibold transition-colors duration-200 ease-out " +
+            (isCurrent
+              ? "text-[var(--accent-primary)]"
+              : "text-[var(--text-primary)] group-hover:text-[var(--text-primary)]")
+          }
+        >
+          {entry.role}
+        </h3>
+
+        <p className="mt-1 text-sm font-medium text-[var(--text-secondary)]">
+          {entry.link ? (
+            <a
+              href={entry.link}
+              className="transition-colors duration-200 ease-out hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-primary)]"
+            >
+              {entry.company}
+            </a>
+          ) : (
+            <span>{entry.company}</span>
+          )}
+        </p>
 
         {entry.highlights?.length ? (
-          <ul className="mt-3 max-w-[760px] space-y-2 text-sm leading-6 text-[var(--text-secondary)]">
-            {entry.highlights.slice(0, 3).map((highlight) => (
-              <li key={highlight} className="flex gap-3">
+          <ul className="mt-3 max-w-[760px] space-y-2 text-sm leading-[1.55] text-[var(--text-secondary)]">
+            {entry.highlights.slice(0, 3).map((highlight, hIndex) => (
+              <li key={`${index}-${hIndex}-${highlight}`} className="flex gap-3">
                 <span
                   aria-hidden="true"
-                  className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[var(--accent-primary)]/70"
+                  className={`mt-2 h-1.5 w-1.5 flex-none rounded-full ${bulletColor}`}
                 />
                 <span>{highlight}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-3 max-w-[760px] text-sm leading-6 text-[var(--text-secondary)]">
+          <p className="mt-3 max-w-[760px] text-sm leading-[1.55] text-[var(--text-secondary)]">
             {entry.description}
           </p>
         )}
-
-        <div className="mt-4 h-px w-0 bg-[var(--accent-primary)]/60 transition-all duration-300 ease-out group-hover:w-24" />
       </div>
     </motion.article>
   );

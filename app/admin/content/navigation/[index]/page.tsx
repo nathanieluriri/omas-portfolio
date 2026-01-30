@@ -24,6 +24,7 @@ export default function NavItemEditorPage() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
   } = usePortfolioDraft();
@@ -64,11 +65,15 @@ export default function NavItemEditorPage() {
     setDraft({ ...data, navItems: list });
   };
 
-  const removeNavItem = () => {
+  const removeNavItem = async () => {
     const list = [...(data.navItems ?? [])];
     list.splice(index, 1);
-    setDraft({ ...data, navItems: list });
-    router.push("/admin/content/navigation");
+    const next = { ...data, navItems: list };
+    setDraft(next);
+    const saved = await saveDraft(next);
+    if (saved) {
+      router.push("/admin/content/navigation");
+    }
   };
 
   if (loading) {

@@ -44,7 +44,7 @@ function SkillGroup({
       className="flex flex-col gap-4 motion-safe:animate-[fade-up_0.7s_ease-out]"
       style={{ animationDelay: delay }}
     >
-      <h3 className="text-[1.25rem] font-semibold text-[var(--text-primary)]">
+      <h3 className="text-[1.1rem] font-semibold text-[var(--text-primary)]">
         {title}
       </h3>
       <div className="flex flex-wrap gap-3">
@@ -64,12 +64,12 @@ export default function ToolsSection({
   skillGroups = fallbackSkillGroups,
 }: ToolsSectionProps) {
   return (
-    <section className="py-24 md:py-28" id="tools">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
+    <section className="py-20 md:py-24" id="tools">
+      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-8 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
         <h2 className="text-[clamp(2rem,3vw,2.25rem)] font-semibold leading-tight text-[var(--text-primary)]">
           Tools &amp; Skills
         </h2>
-        <div className="grid gap-10 md:grid-cols-2">
+        <div className="flex flex-col gap-10">
           {skillGroups.map((group, index) => (
             <SkillGroup
               key={group.title}

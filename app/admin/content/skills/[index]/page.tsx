@@ -25,6 +25,7 @@ export default function SkillGroupEditorPage() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
   } = usePortfolioDraft();
@@ -66,11 +67,15 @@ export default function SkillGroupEditorPage() {
     setDraft({ ...data, skillGroups: list });
   };
 
-  const removeSkillGroup = () => {
+  const removeSkillGroup = async () => {
     const list = [...(data.skillGroups ?? [])];
     list.splice(index, 1);
-    setDraft({ ...data, skillGroups: list });
-    router.push("/admin/content/skills");
+    const next = { ...data, skillGroups: list };
+    setDraft(next);
+    const saved = await saveDraft(next);
+    if (saved) {
+      router.push("/admin/content/skills");
+    }
   };
 
   if (loading) {

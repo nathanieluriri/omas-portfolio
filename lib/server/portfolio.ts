@@ -2,8 +2,9 @@ import "server-only";
 
 import type { APIResponse, PortfolioOut } from "../types";
 
-const API_BASE_URL = process.env.API_BASE_URL;
-const USER_ID = process.env.NEXT_PUBLIC_USER_ID;
+const API_BASE_URL =
+  process.env.API_BASE_URL?.trim() ?? process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+const USER_ID = process.env.NEXT_PUBLIC_USER_ID?.trim();
 
 function getPortfolioUrl() {
   if (!API_BASE_URL) {

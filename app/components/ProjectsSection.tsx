@@ -1,4 +1,5 @@
 import type { ProjectEntry } from "../../lib/types";
+import { getProjectHref } from "../../lib/projects";
 import InlineLink from "./ui/InlineLink";
 import Tag from "./ui/Tag";
 
@@ -56,31 +57,35 @@ export default function ProjectsSection({
 }: ProjectsSectionProps) {
   return (
     <section id="work" className="py-24 md:py-28">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
+      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-10 px-6 md:px-10 motion-safe:animate-[fade-up_0.7s_ease-out]">
         <h2 className="text-[clamp(2rem,3vw,2.25rem)] font-semibold leading-tight text-[var(--text-primary)]">
           Selected Work
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project, index) => (
-            <article
-              key={project.title}
-              className="group flex h-full flex-col gap-4 rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:bg-[var(--bg-surface-hover)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.25)] motion-safe:animate-[fade-up_0.7s_ease-out]"
-              style={{ animationDelay: `${120 + index * 70}ms` }}
-            >
-              <div className="flex flex-wrap gap-2">
-                {(project.tags ?? []).map((tag) => (
-                  <Tag key={tag} label={tag} />
-                ))}
-              </div>
-              <h3 className="text-[1.25rem] font-semibold text-[var(--text-primary)]">
-                {project.title}
-              </h3>
-              <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                {project.description}
-              </p>
-              <InlineLink href={project.link} label="View details" />
-            </article>
-          ))}
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-2">
+          {projects.map((project, index) => {
+            const href = getProjectHref(project);
+
+            return (
+              <article
+                key={project.title}
+                className="group flex h-full flex-col gap-4 rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:bg-[var(--bg-surface-hover)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.25)] motion-safe:animate-[fade-up_0.7s_ease-out]"
+                style={{ animationDelay: `${120 + index * 70}ms` }}
+              >
+                <div className="flex flex-wrap gap-2">
+                  {(project.tags ?? []).map((tag) => (
+                    <Tag key={tag} label={tag} />
+                  ))}
+                </div>
+                <h3 className="text-[1.25rem] font-semibold text-[var(--text-primary)]">
+                  {project.title}
+                </h3>
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                  {project.description}
+                </p>
+                {href ? <InlineLink href={href} label="View details" /> : null}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

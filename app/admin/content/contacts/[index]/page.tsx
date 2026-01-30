@@ -24,6 +24,7 @@ export default function ContactEditorPage() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
   } = usePortfolioDraft();
@@ -68,11 +69,15 @@ export default function ContactEditorPage() {
     setDraft({ ...data, contacts: list });
   };
 
-  const removeContact = () => {
+  const removeContact = async () => {
     const list = [...(data.contacts ?? [])];
     list.splice(index, 1);
-    setDraft({ ...data, contacts: list });
-    router.push("/admin/content/contacts");
+    const next = { ...data, contacts: list };
+    setDraft(next);
+    const saved = await saveDraft(next);
+    if (saved) {
+      router.push("/admin/content/contacts");
+    }
   };
 
   if (loading) {

@@ -18,10 +18,10 @@ export default function Header({ navItems = fallbackNav }: HeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-[color-mix(in_oklab,var(--bg-primary)_70%,transparent)] backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 py-6 md:px-10">
+    <header className="sticky top-0 z-20 border-b border-[var(--bg-divider)]/60 bg-[color-mix(in_oklab,var(--bg-primary)_82%,transparent)] backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-[960px] items-center justify-between px-6 py-4 md:px-10">
         <ThemeToggle />
-        <nav className="flex items-center gap-6 text-sm italic text-[var(--text-muted)]">
+        <nav className="flex w-full max-w-[720px] items-center justify-end gap-6 text-sm">
           {navItems.map((item) => {
             const isActive = item.href.startsWith("/")
               ? pathname === item.href
@@ -30,9 +30,7 @@ export default function Header({ navItems = fallbackNav }: HeaderProps) {
               <a
                 key={item.href}
                 href={item.href}
-                className={`relative transition-colors duration-200 ease-out hover:text-[var(--text-primary)] after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-[var(--accent-primary)] after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 ${
-                  isActive ? "text-[var(--text-primary)] after:scale-x-100" : ""
-                }`}
+                className={`nav-link ${isActive ? "nav-link--active" : ""}`}
                 aria-current={isActive ? "page" : undefined}
               >
                 {item.label}

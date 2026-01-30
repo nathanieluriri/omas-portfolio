@@ -24,6 +24,7 @@ export default function ExperienceEditorPage() {
     saving,
     error,
     save,
+    saveDraft,
     discard,
     hasChanges,
   } = usePortfolioDraft();
@@ -68,11 +69,15 @@ export default function ExperienceEditorPage() {
     setDraft({ ...data, experience: list });
   };
 
-  const removeExperience = () => {
+  const removeExperience = async () => {
     const list = [...(data.experience ?? [])];
     list.splice(index, 1);
-    setDraft({ ...data, experience: list });
-    router.push("/admin/content/experience");
+    const next = { ...data, experience: list };
+    setDraft(next);
+    const saved = await saveDraft(next);
+    if (saved) {
+      router.push("/admin/content/experience");
+    }
   };
 
   if (loading) {

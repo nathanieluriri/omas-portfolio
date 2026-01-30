@@ -1,8 +1,8 @@
 import ExperienceSection from "../../components/ExperienceSection";
-import { fetchPortfolioISR } from "../../../lib/server/portfolio";
+import { fetchPortfolioLive } from "../../../lib/server/portfolio";
 
 export default async function ExperiencePage() {
-  const portfolio = await fetchPortfolioISR();
+  const portfolio = await fetchPortfolioLive();
 
   if (!portfolio) {
     return <ExperienceSection />;

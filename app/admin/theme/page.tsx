@@ -103,6 +103,19 @@ export default function ThemeEditorPage() {
     usePortfolioDraft();
   const [previewMode, setPreviewMode] = useState<"light" | "dark">("light");
 
+  const preview = useMemo(() => {
+    const hero = draft?.hero;
+    const name = hero?.name ?? "Your Name";
+    const title = hero?.title ?? "Your Role or Specialty";
+    const bio = hero?.bio?.[0] ?? "Describe your focus, strengths, and the kind of work you love.";
+    const availability = hero?.availability?.label ?? "Open to work";
+    const projects = (draft?.projects ?? []).slice(0, 2);
+    const skills = (draft?.skillGroups ?? []).slice(0, 2);
+    const contacts = (draft?.contacts ?? []).slice(0, 3);
+
+    return { name, title, bio, availability, projects, skills, contacts };
+  }, [draft?.contacts, draft?.hero, draft?.projects, draft?.skillGroups]);
+
   if (loading || !draft) {
     return (
       <AdminShell
@@ -118,19 +131,6 @@ export default function ThemeEditorPage() {
     ...baseTheme,
     ...(draft.theme ?? {}),
   };
-
-  const preview = useMemo(() => {
-    const hero = draft.hero;
-    const name = hero?.name ?? "Your Name";
-    const title = hero?.title ?? "Your Role or Specialty";
-    const bio = hero?.bio?.[0] ?? "Describe your focus, strengths, and the kind of work you love.";
-    const availability = hero?.availability?.label ?? "Open to work";
-    const projects = (draft.projects ?? []).slice(0, 2);
-    const skills = (draft.skillGroups ?? []).slice(0, 2);
-    const contacts = (draft.contacts ?? []).slice(0, 3);
-
-    return { name, title, bio, availability, projects, skills, contacts };
-  }, [draft.contacts, draft.hero, draft.projects, draft.skillGroups]);
 
   const updateTheme = (key: keyof ThemeColors, value: string) => {
     setDraft({
