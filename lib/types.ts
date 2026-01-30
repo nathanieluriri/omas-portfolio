@@ -94,6 +94,11 @@ export interface MetadataFields {
   title?: string;
   description?: string;
   author?: string;
+  socialImageUrl?: string;
+  anagramDarkModeUrl?: string;
+  anagramLightModeUrl?: string;
+  faviconImageUrl?: string;
+  showAnagram?: boolean;
 }
 
 export interface PortfolioBase {

@@ -162,6 +162,34 @@ export async function uploadResume(file: File) {
   return response.json() as Promise<APIResponse<Record<string, unknown>>>;
 }
 
+export async function uploadMetadataImages(params: {
+  socialImage?: File | null;
+  anagramDark?: File | null;
+  anagramLight?: File | null;
+  favicon?: File | null;
+}) {
+  const formData = new FormData();
+  if (params.socialImage) formData.append("social_image", params.socialImage);
+  if (params.anagramDark) formData.append("anagram_dark", params.anagramDark);
+  if (params.anagramLight) formData.append("anagram_light", params.anagramLight);
+  if (params.favicon) formData.append("favicon", params.favicon);
+
+  const response = await apiFetch<Record<string, string>>(
+    "/v1/portfolios/upload_metadata_images",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Failed to upload metadata images");
+  }
+
+  return response.json() as Promise<APIResponse<Record<string, string>>>;
+}
+
 export async function generateSuggestion(params: {
   targetPath: string;
   textInput?: string;

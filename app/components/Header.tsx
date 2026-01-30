@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import type { NavItem } from "../../lib/types";
+import type { MetadataFields, NavItem } from "../../lib/types";
 import ThemeToggle from "./ui/ThemeToggle";
 
 const fallbackNav: NavItem[] = [
@@ -12,15 +12,45 @@ const fallbackNav: NavItem[] = [
 
 interface HeaderProps {
   navItems?: NavItem[];
+  metadata?: MetadataFields;
 }
 
-export default function Header({ navItems = fallbackNav }: HeaderProps) {
+export default function Header({
+  navItems = fallbackNav,
+  metadata,
+}: HeaderProps) {
   const pathname = usePathname();
+  const showAnagram = Boolean(metadata?.showAnagram);
+  const anagramLight = metadata?.anagramLightModeUrl;
+  const anagramDark = metadata?.anagramDarkModeUrl;
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--bg-divider)]/60 bg-[color-mix(in_oklab,var(--bg-primary)_82%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-[960px] items-center justify-between px-6 py-4 md:px-10">
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          {showAnagram && (anagramLight || anagramDark) ? (
+            <span className="relative inline-flex h-10 items-center">
+              {anagramLight ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={anagramLight}
+                  alt="Anagram mark"
+                  className="anagram-mark anagram-mark--light h-8 w-auto"
+                />
+              ) : null}
+              {anagramDark ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={anagramDark}
+                  alt="Anagram mark"
+                  className="anagram-mark anagram-mark--dark h-8 w-auto"
+                />
+              ) : null}
+            </span>
+          ) : (
+            <ThemeToggle />
+          )}
+        </div>
         <nav className="flex w-full max-w-[720px] items-center justify-end gap-6 text-sm">
           {navItems.map((item) => {
             const isActive = item.href.startsWith("/")
