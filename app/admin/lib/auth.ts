@@ -3,6 +3,17 @@ let accessToken: string | null = null;
 const ACCESS_KEY = "admin.access_token";
 const REFRESH_KEY = "admin.refresh_token";
 
+function setRefreshCookie(token: string | null) {
+  if (typeof document === "undefined") return;
+  if (token) {
+    document.cookie = `${REFRESH_KEY}=${encodeURIComponent(
+      token
+    )}; Path=/admin; SameSite=Lax`;
+  } else {
+    document.cookie = `${REFRESH_KEY}=; Path=/admin; Max-Age=0; SameSite=Lax`;
+  }
+}
+
 export function setAccessToken(token: string | null) {
   accessToken = token;
   if (typeof window === "undefined") return;
@@ -28,6 +39,7 @@ export function setRefreshToken(token: string | null) {
   } else {
     localStorage.removeItem(REFRESH_KEY);
   }
+  setRefreshCookie(token);
 }
 
 export function getRefreshToken() {
