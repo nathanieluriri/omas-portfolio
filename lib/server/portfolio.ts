@@ -7,17 +7,16 @@ const API_BASE_URL =
 const USER_ID = process.env.NEXT_PUBLIC_USER_ID?.trim();
 
 function getPortfolioUrl() {
-  if (!API_BASE_URL) {
-    throw new Error("Missing API_BASE_URL environment variable.");
-  }
-  if (!USER_ID) {
-    throw new Error("Missing NEXT_PUBLIC_USER_ID environment variable.");
+  if (!API_BASE_URL || !USER_ID) {
+    return null;
   }
   return `${API_BASE_URL}/v1/portfolios/${USER_ID}`;
 }
 
 export async function fetchPortfolioISR(): Promise<PortfolioOut | null> {
-  const response = await fetch(getPortfolioUrl(), {
+  const url = getPortfolioUrl();
+  if (!url) return null;
+  const response = await fetch(url, {
     next: {
       revalidate: 3600,
       tags: ["portfolio"],
@@ -33,7 +32,9 @@ export async function fetchPortfolioISR(): Promise<PortfolioOut | null> {
 }
 
 export async function fetchPortfolioLive(): Promise<PortfolioOut | null> {
-  const response = await fetch(getPortfolioUrl(), {
+  const url = getPortfolioUrl();
+  if (!url) return null;
+  const response = await fetch(url, {
     cache: "no-store",
   });
 
