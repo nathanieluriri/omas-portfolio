@@ -5,6 +5,7 @@ import SurfaceCard from "../../components/SurfaceCard";
 import DraftBar from "../../../components/admin/DraftBar";
 import usePortfolioDraft from "../../hooks/usePortfolioDraft";
 import { emptyPortfolio } from "../utils";
+import AiFieldSuggestion from "../../../components/admin/ai-suggestions/AiFieldSuggestion";
 
 export default function FooterEditorPage() {
   const { draft, setDraft, loading, saving, error, save, discard, hasChanges } =
@@ -45,28 +46,54 @@ export default function FooterEditorPage() {
 
       <SurfaceCard>
         <div className="grid gap-4 md:grid-cols-2">
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
-            placeholder="Copyright"
-            value={data.footer?.copyright ?? ""}
-            onChange={(event) =>
-              setDraft({
-                ...data,
-                footer: { ...data.footer, copyright: event.target.value },
-              })
-            }
-          />
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
-            placeholder="Tagline"
-            value={data.footer?.tagline ?? ""}
-            onChange={(event) =>
-              setDraft({
-                ...data,
-                footer: { ...data.footer, tagline: event.target.value },
-              })
-            }
-          />
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
+              placeholder="Copyright"
+              value={data.footer?.copyright ?? ""}
+              onChange={(event) =>
+                setDraft({
+                  ...data,
+                  footer: { ...data.footer, copyright: event.target.value },
+                })
+              }
+            />
+            <AiFieldSuggestion
+              targetPath="footer.copyright"
+              currentValue={data.footer?.copyright ?? ""}
+              onApply={(value) =>
+                setDraft({
+                  ...data,
+                  footer: { ...data.footer, copyright: value },
+                })
+              }
+              label="Copyright"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
+              placeholder="Tagline"
+              value={data.footer?.tagline ?? ""}
+              onChange={(event) =>
+                setDraft({
+                  ...data,
+                  footer: { ...data.footer, tagline: event.target.value },
+                })
+              }
+            />
+            <AiFieldSuggestion
+              targetPath="footer.tagline"
+              currentValue={data.footer?.tagline ?? ""}
+              onApply={(value) =>
+                setDraft({
+                  ...data,
+                  footer: { ...data.footer, tagline: value },
+                })
+              }
+              label="Tagline"
+            />
+          </div>
         </div>
       </SurfaceCard>
     </AdminShell>

@@ -86,7 +86,11 @@ export default function ProjectCaseStudyPage() {
       ) : null}
 
       <SurfaceCard>
-        <CaseStudyEditor caseStudy={entry.caseStudy} onUpdate={updateCaseStudy} />
+        <CaseStudyEditor
+          caseStudy={entry.caseStudy}
+          onUpdate={updateCaseStudy}
+          targetBase={`projects[${index}].caseStudy`}
+        />
       </SurfaceCard>
     </AdminShell>
   );

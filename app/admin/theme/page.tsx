@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import AdminShell from "../components/AdminShell";
 import SurfaceCard from "../components/SurfaceCard";
 import usePortfolioDraft from "../hooks/usePortfolioDraft";
@@ -100,6 +101,7 @@ const isThemeMatch = (a: ThemeColors, b: ThemeColors) =>
 export default function ThemeEditorPage() {
   const { draft, setDraft, loading, save, saving, discard, hasChanges } =
     usePortfolioDraft();
+  const [previewMode, setPreviewMode] = useState<"light" | "dark">("light");
 
   if (loading || !draft) {
     return (
@@ -116,6 +118,19 @@ export default function ThemeEditorPage() {
     ...baseTheme,
     ...(draft.theme ?? {}),
   };
+
+  const preview = useMemo(() => {
+    const hero = draft.hero;
+    const name = hero?.name ?? "Your Name";
+    const title = hero?.title ?? "Your Role or Specialty";
+    const bio = hero?.bio?.[0] ?? "Describe your focus, strengths, and the kind of work you love.";
+    const availability = hero?.availability?.label ?? "Open to work";
+    const projects = (draft.projects ?? []).slice(0, 2);
+    const skills = (draft.skillGroups ?? []).slice(0, 2);
+    const contacts = (draft.contacts ?? []).slice(0, 3);
+
+    return { name, title, bio, availability, projects, skills, contacts };
+  }, [draft.contacts, draft.hero, draft.projects, draft.skillGroups]);
 
   const updateTheme = (key: keyof ThemeColors, value: string) => {
     setDraft({
@@ -227,49 +242,142 @@ export default function ThemeEditorPage() {
       <SurfaceCard>
         <div className="flex flex-col gap-4">
           <div>
-            <h2 className="text-lg font-semibold">Live preview</h2>
+            <h2 className="text-lg font-semibold">Homepage preview</h2>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
-              This preview uses your current theme settings.
+              Preview how the portfolio homepage looks with your current theme.
             </p>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {(["light", "dark"] as const).map((mode) => (
-              <div
-                key={mode}
-                data-theme={mode}
-                style={themeToStyle(currentTheme)}
-                className="rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                    {mode} mode
-                  </span>
-                  <span className="rounded-full bg-[var(--accent-muted)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)]">
-                    Accent
-                  </span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              Preview mode
+            </div>
+            <div className="flex items-center gap-2">
+              {(["light", "dark"] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  variant={previewMode === mode ? "primary" : "secondary"}
+                  onClick={() => setPreviewMode(mode)}
+                >
+                  {mode}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div
+            data-theme={previewMode}
+            style={themeToStyle(currentTheme)}
+            className="rounded-3xl border border-[var(--bg-divider)] bg-[var(--bg-primary)]"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--bg-divider)] px-6 py-4">
+              <span className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                {preview.name}
+              </span>
+              <div className="flex items-center gap-4 text-xs text-[var(--text-secondary)]">
+                <span>About</span>
+                <span>Work</span>
+                <span>Contact</span>
+              </div>
+            </div>
+
+            <div className="px-6 py-8">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-semibold text-[var(--text-primary)]">
+                    {preview.name}
+                  </h3>
+                  <p className="mt-2 text-sm font-semibold italic text-[var(--accent-primary)]">
+                    {preview.title}
+                  </p>
                 </div>
-                <div className="mt-4 rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-4">
-                  <p className="text-sm font-semibold text-[var(--text-primary)]">
-                    Theme preview
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                    Primary, secondary, and muted text styles.
-                  </p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-[var(--accent-primary)]" />
-                    <span className="text-xs text-[var(--text-muted)]">
-                      Accent indicator
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-full bg-[var(--accent-primary)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white"
-                  >
-                    Primary action
-                  </button>
+                <span className="rounded-full border border-[var(--bg-divider)] px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                  {preview.availability}
+                </span>
+              </div>
+              <p className="mt-4 max-w-[520px] text-sm text-[var(--text-secondary)]">
+                {preview.bio}
+              </p>
+              <button
+                type="button"
+                className="mt-5 rounded-full bg-[var(--accent-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white"
+              >
+                View resume
+              </button>
+            </div>
+
+            <div className="grid gap-6 border-t border-[var(--bg-divider)] px-6 py-8 md:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                  Work highlights
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {(preview.projects.length > 0 ? preview.projects : [{ title: "Project Title", description: "Short project description." }]).map(
+                    (project, index) => (
+                      <div
+                        key={index}
+                        className="rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-4"
+                      >
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">
+                          {project.title || "Project Title"}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                          {project.description || "Short project description."}
+                        </p>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
-            ))}
+
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                  Skills
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {(preview.skills.length > 0 ? preview.skills : [{ title: "Skills", items: ["Systems", "Product", "Architecture"] }]).map(
+                    (group, index) => (
+                      <div key={index} className="rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] p-4">
+                        <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                          {group.title || "Skills"}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(group.items ?? ["Systems", "Product"]).map((item, itemIndex) => (
+                            <span
+                              key={itemIndex}
+                              className="rounded-full bg-[var(--bg-primary)] px-3 py-1 text-[11px] text-[var(--text-secondary)]"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-[var(--bg-divider)] px-6 py-6">
+              <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                Contact
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {(preview.contacts.length > 0
+                  ? preview.contacts
+                  : [
+                      { label: "Email", value: "hello@email.com" },
+                      { label: "LinkedIn", value: "linkedin.com/in/you" },
+                    ]
+                ).map((contact, index) => (
+                  <div
+                    key={index}
+                    className="rounded-full border border-[var(--bg-divider)] px-3 py-1 text-[11px] text-[var(--text-secondary)]"
+                  >
+                    {contact.label}: {contact.value}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </SurfaceCard>

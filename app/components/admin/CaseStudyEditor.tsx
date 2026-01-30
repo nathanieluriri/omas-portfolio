@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import type { CaseStudy } from "../../../lib/types";
 import Button from "../../admin/components/Button";
+import AiFieldSuggestion from "./ai-suggestions/AiFieldSuggestion";
 
 interface CaseStudyEditorProps {
   caseStudy?: CaseStudy;
   onUpdate: (next: CaseStudy | undefined) => void;
+  targetBase: string;
 }
 
 function computeStatus(caseStudy?: CaseStudy) {
@@ -28,7 +30,11 @@ function computeStatus(caseStudy?: CaseStudy) {
   return complete ? "complete" : "draft";
 }
 
-export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditorProps) {
+export default function CaseStudyEditor({
+  caseStudy,
+  onUpdate,
+  targetBase,
+}: CaseStudyEditorProps) {
   const [open, setOpen] = useState(Boolean(caseStudy));
   const status = useMemo(() => computeStatus(caseStudy), [caseStudy]);
 
@@ -79,13 +85,21 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
             <label className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
               Overview
             </label>
-            <textarea
-              className="mt-2 min-h-[120px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-              placeholder="1–3 paragraphs. Explain context and what this project is."
-              value={caseStudy?.overview ?? ""}
-              onChange={(event) => update({ overview: event.target.value })}
-              maxLength={1500}
-            />
+            <div className="mt-2 flex gap-3">
+              <textarea
+                className="min-h-[120px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+                placeholder="1–3 paragraphs. Explain context and what this project is."
+                value={caseStudy?.overview ?? ""}
+                onChange={(event) => update({ overview: event.target.value })}
+                maxLength={1500}
+              />
+              <AiFieldSuggestion
+                targetPath={`${targetBase}.overview`}
+                currentValue={caseStudy?.overview ?? ""}
+                onApply={(value) => update({ overview: value })}
+                label="Overview"
+              />
+            </div>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               {(caseStudy?.overview ?? "").length}/1500
             </p>
@@ -95,13 +109,21 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
             <label className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
               The goal
             </label>
-            <textarea
-              className="mt-2 min-h-[90px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-              placeholder="What you were trying to achieve (clear and specific)."
-              value={caseStudy?.goal ?? ""}
-              onChange={(event) => update({ goal: event.target.value })}
-              maxLength={500}
-            />
+            <div className="mt-2 flex gap-3">
+              <textarea
+                className="min-h-[90px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+                placeholder="What you were trying to achieve (clear and specific)."
+                value={caseStudy?.goal ?? ""}
+                onChange={(event) => update({ goal: event.target.value })}
+                maxLength={500}
+              />
+              <AiFieldSuggestion
+                targetPath={`${targetBase}.goal`}
+                currentValue={caseStudy?.goal ?? ""}
+                onApply={(value) => update({ goal: value })}
+                label="Goal"
+              />
+            </div>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               {(caseStudy?.goal ?? "").length}/500
             </p>
@@ -111,13 +133,21 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
             <label className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
               Role title
             </label>
-            <input
-              className="mt-2 w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-              placeholder="Full-Stack Engineer"
-              value={caseStudy?.role?.title ?? ""}
-              onChange={(event) => updateRole({ title: event.target.value })}
-              maxLength={100}
-            />
+            <div className="mt-2 flex items-center gap-3">
+              <input
+                className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+                placeholder="Full-Stack Engineer"
+                value={caseStudy?.role?.title ?? ""}
+                onChange={(event) => updateRole({ title: event.target.value })}
+                maxLength={100}
+              />
+              <AiFieldSuggestion
+                targetPath={`${targetBase}.role.title`}
+                currentValue={caseStudy?.role?.title ?? ""}
+                onApply={(value) => updateRole({ title: value })}
+                label="Role title"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -136,6 +166,16 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
                     updateRole({ bullets: next });
                   }}
                   maxLength={150}
+                />
+                <AiFieldSuggestion
+                  targetPath={`${targetBase}.role.bullets[${index}]`}
+                  currentValue={bullet}
+                  onApply={(value) => {
+                    const next = [...(caseStudy?.role?.bullets ?? [])];
+                    next[index] = value;
+                    updateRole({ bullets: next });
+                  }}
+                  label={`Bullet ${index + 1}`}
                 />
                 <Button
                   variant="secondary"
@@ -166,37 +206,73 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
             {(caseStudy?.screenshots ?? []).map((shot, index) => (
               <div key={index} className="rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] p-4">
                 <div className="grid gap-3 md:grid-cols-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
+                      placeholder="Image URL or path"
+                      value={shot.src}
+                      onChange={(event) => {
+                        const next = [...(caseStudy?.screenshots ?? [])];
+                        next[index] = { ...next[index], src: event.target.value };
+                        update({ screenshots: next });
+                      }}
+                    />
+                    <AiFieldSuggestion
+                      targetPath={`${targetBase}.screenshots[${index}].src`}
+                      currentValue={shot.src}
+                      onApply={(value) => {
+                        const next = [...(caseStudy?.screenshots ?? [])];
+                        next[index] = { ...next[index], src: value };
+                        update({ screenshots: next });
+                      }}
+                      label="Screenshot URL"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
+                      placeholder="Alt text (optional)"
+                      value={shot.alt ?? ""}
+                      onChange={(event) => {
+                        const next = [...(caseStudy?.screenshots ?? [])];
+                        next[index] = { ...next[index], alt: event.target.value };
+                        update({ screenshots: next });
+                      }}
+                    />
+                    <AiFieldSuggestion
+                      targetPath={`${targetBase}.screenshots[${index}].alt`}
+                      currentValue={shot.alt ?? ""}
+                      onApply={(value) => {
+                        const next = [...(caseStudy?.screenshots ?? [])];
+                        next[index] = { ...next[index], alt: value };
+                        update({ screenshots: next });
+                      }}
+                      label="Alt text"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
                   <input
                     className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
-                    placeholder="Image URL or path"
-                    value={shot.src}
+                    placeholder="Caption (optional)"
+                    value={shot.caption ?? ""}
                     onChange={(event) => {
                       const next = [...(caseStudy?.screenshots ?? [])];
-                      next[index] = { ...next[index], src: event.target.value };
+                      next[index] = { ...next[index], caption: event.target.value };
                       update({ screenshots: next });
                     }}
                   />
-                  <input
-                    className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
-                    placeholder="Alt text (optional)"
-                    value={shot.alt ?? ""}
-                    onChange={(event) => {
+                  <AiFieldSuggestion
+                    targetPath={`${targetBase}.screenshots[${index}].caption`}
+                    currentValue={shot.caption ?? ""}
+                    onApply={(value) => {
                       const next = [...(caseStudy?.screenshots ?? [])];
-                      next[index] = { ...next[index], alt: event.target.value };
+                      next[index] = { ...next[index], caption: value };
                       update({ screenshots: next });
                     }}
+                    label="Caption"
                   />
                 </div>
-                <input
-                  className="mt-3 w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-surface)] px-4 py-2 text-sm"
-                  placeholder="Caption (optional)"
-                  value={shot.caption ?? ""}
-                  onChange={(event) => {
-                    const next = [...(caseStudy?.screenshots ?? [])];
-                    next[index] = { ...next[index], caption: event.target.value };
-                    update({ screenshots: next });
-                  }}
-                />
                 {shot.src ? (
                   <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--bg-divider)]">
                     <img
@@ -252,6 +328,16 @@ export default function CaseStudyEditor({ caseStudy, onUpdate }: CaseStudyEditor
                     update({ outcomes: next });
                   }}
                   maxLength={200}
+                />
+                <AiFieldSuggestion
+                  targetPath={`${targetBase}.outcomes[${index}]`}
+                  currentValue={outcome}
+                  onApply={(value) => {
+                    const next = [...(caseStudy?.outcomes ?? [])];
+                    next[index] = value;
+                    update({ outcomes: next });
+                  }}
+                  label={`Outcome ${index + 1}`}
                 />
                 <Button
                   variant="secondary"

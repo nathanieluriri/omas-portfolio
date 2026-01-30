@@ -1,7 +1,7 @@
 import ContactSection from "../components/ContactSection";
 import Hero from "../components/Hero";
 import ToolsSection from "../components/ToolsSection";
-import { fetchPortfolioISR } from "../../lib/server/portfolio";
+import { fetchPortfolioLive } from "../../lib/server/portfolio";
 
 function MissingPortfolio() {
   return (
@@ -19,7 +19,7 @@ function MissingPortfolio() {
 }
 
 export default async function Home() {
-  const portfolio = await fetchPortfolioISR();
+  const portfolio = await fetchPortfolioLive();
 
   if (!portfolio) {
     return <MissingPortfolio />;

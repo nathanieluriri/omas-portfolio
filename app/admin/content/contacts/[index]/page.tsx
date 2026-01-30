@@ -9,12 +9,14 @@ import DraftBar from "../../../../components/admin/DraftBar";
 import usePortfolioDraft from "../../../hooks/usePortfolioDraft";
 import { emptyPortfolio } from "../../utils";
 import type { ContactEntry } from "../../../../../lib/types";
+import AiFieldSuggestion from "../../../../components/admin/ai-suggestions/AiFieldSuggestion";
 
 export default function ContactEditorPage() {
   const router = useRouter();
   const params = useParams<{ index: string }>();
   const rawIndex = params.index;
   const createdRef = useRef(false);
+  const newIndexRef = useRef<number | null>(null);
   const {
     draft,
     setDraft,
@@ -28,19 +30,37 @@ export default function ContactEditorPage() {
 
   const data = draft ?? emptyPortfolio();
   const isNew = rawIndex === "new";
-  const index = isNew ? (data.contacts?.length ?? 0) : Number(rawIndex);
-  const contact = data.contacts?.[index];
+  const list = data.contacts ?? [];
+  const parsedIndex = Number(rawIndex);
+  useEffect(() => {
+    if (!isNew || loading) return;
+    if (newIndexRef.current === null) {
+      newIndexRef.current = list.length;
+    }
+  }, [isNew, list.length, loading]);
+
+  const index = isNew ? (newIndexRef.current ?? list.length) : parsedIndex;
+  const contact = list[index];
+  const invalidIndex = Number.isNaN(index) || index < 0;
+  const shouldCreate =
+    !loading && !createdRef.current && !invalidIndex && (isNew || (!contact && index === list.length));
+  const awaitingCreation =
+    !loading && !invalidIndex && !contact && (isNew || index === list.length);
 
   useEffect(() => {
-    if (!isNew || createdRef.current || loading) return;
+    if (!shouldCreate) return;
     createdRef.current = true;
     const next = [
-      ...(data.contacts ?? []),
+      ...list,
       { label: "", value: "", href: "", icon: "" },
     ];
     setDraft({ ...data, contacts: next });
-    router.replace(`/admin/content/contacts/${next.length - 1}`);
-  }, [data, isNew, loading, router, setDraft]);
+  }, [data, list, setDraft, shouldCreate]);
+
+  useEffect(() => {
+    if (loading || !invalidIndex) return;
+    router.push("/admin/content/contacts");
+  }, [invalidIndex, loading, router]);
 
   const updateContact = (next: Partial<ContactEntry>) => {
     const list = [...(data.contacts ?? [])];
@@ -71,7 +91,23 @@ export default function ContactEditorPage() {
     );
   }
 
-  if (!contact && !isNew) {
+  if (invalidIndex) {
+    return (
+      <AdminShell
+        title="Contacts"
+        breadcrumb={[
+          { label: "Admin", href: "/admin/dashboard" },
+          { label: "Content", href: "/admin/content" },
+          { label: "Contacts", href: "/admin/content/contacts" },
+          { label: "Invalid contact" },
+        ]}
+      >
+        <SurfaceCard>Invalid contact.</SurfaceCard>
+      </AdminShell>
+    );
+  }
+
+  if (!contact && !awaitingCreation) {
     return (
       <AdminShell
         title="Contacts"
@@ -87,7 +123,7 @@ export default function ContactEditorPage() {
     );
   }
 
-  if (!contact && isNew) {
+  if (!contact && awaitingCreation) {
     return (
       <AdminShell
         title="Contacts"
@@ -132,30 +168,62 @@ export default function ContactEditorPage() {
           </Button>
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Label"
-            value={current.label}
-            onChange={(event) => updateContact({ label: event.target.value })}
-          />
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Value"
-            value={current.value}
-            onChange={(event) => updateContact({ value: event.target.value })}
-          />
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Href"
-            value={current.href}
-            onChange={(event) => updateContact({ href: event.target.value })}
-          />
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Icon key"
-            value={current.icon ?? ""}
-            onChange={(event) => updateContact({ icon: event.target.value })}
-          />
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Label"
+              value={current.label}
+              onChange={(event) => updateContact({ label: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`contacts[${index}].label`}
+              currentValue={current.label}
+              onApply={(value) => updateContact({ label: value })}
+              label="Label"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Value"
+              value={current.value}
+              onChange={(event) => updateContact({ value: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`contacts[${index}].value`}
+              currentValue={current.value}
+              onApply={(value) => updateContact({ value: value })}
+              label="Value"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Href"
+              value={current.href}
+              onChange={(event) => updateContact({ href: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`contacts[${index}].href`}
+              currentValue={current.href}
+              onApply={(value) => updateContact({ href: value })}
+              label="Href"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Icon key"
+              value={current.icon ?? ""}
+              onChange={(event) => updateContact({ icon: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`contacts[${index}].icon`}
+              currentValue={current.icon ?? ""}
+              onApply={(value) => updateContact({ icon: value })}
+              label="Icon"
+            />
+          </div>
         </div>
       </SurfaceCard>
     </AdminShell>

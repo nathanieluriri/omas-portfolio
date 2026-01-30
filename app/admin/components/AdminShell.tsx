@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import type { PropsWithChildren } from "react";
 import AdminSearchBar from "../../components/admin/AdminSearchBar";
 import Breadcrumb from "../../components/admin/Breadcrumb";
@@ -9,6 +10,7 @@ import CollapsibleSidebar from "../../components/admin/CollapsibleSidebar";
 import useAdminUser from "../hooks/useAdminUser";
 import { clearTokens } from "../lib/auth";
 import Button from "./Button";
+import SessionLoader from "./SessionLoader";
 
 const tabs = [
   { href: "/admin/dashboard", label: "Overview" },
@@ -31,12 +33,30 @@ export default function AdminShell({
 }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAdminUser();
+  const { user, loading } = useAdminUser();
 
   const handleSignOut = () => {
     clearTokens();
     router.push("/admin/login");
   };
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      clearTokens();
+      router.replace("/admin/login");
+    }
+  }, [loading, router, user]);
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+        <div className="mx-auto flex min-h-screen w-full max-w-[640px] items-center justify-center px-6 text-sm text-[var(--text-muted)]">
+          <SessionLoader />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">

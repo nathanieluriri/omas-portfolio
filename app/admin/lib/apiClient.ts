@@ -1,18 +1,34 @@
 import { API_BASE_URL } from "../../../lib/config";
 import type { APIResponse, PortfolioOut, UserOut } from "../../../lib/types";
-import { getAccessToken, getRefreshToken, setAccessToken, setRefreshToken } from "./auth";
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  setAccessToken,
+  setRefreshToken,
+} from "./auth";
+
+interface SuggestionPatchData {
+  target: string;
+  patch: Record<string, unknown>;
+  source_length: number;
+}
 
 async function refreshTokens() {
   const refreshToken = getRefreshToken();
   const accessToken = getAccessToken();
-  if (!refreshToken || !accessToken) return null;
+  if (!refreshToken) return null;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
 
   const response = await fetch(`${API_BASE_URL}/v1/users/refresh`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers,
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
 
@@ -44,14 +60,23 @@ export async function apiFetch<T>(
   });
 
   if (response.status === 401 && requireAuth) {
-    const refreshed = await refreshTokens();
-    if (refreshed?.access_token) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const refreshed = await refreshTokens();
+      if (!refreshed?.access_token) break;
       const retryHeaders = new Headers(options.headers);
       retryHeaders.set("Authorization", `Bearer ${refreshed.access_token}`);
-      return fetch(`${API_BASE_URL}${path}`, {
+      const retryResponse = await fetch(`${API_BASE_URL}${path}`, {
         ...options,
         headers: retryHeaders,
       });
+      if (retryResponse.status !== 401) {
+        return retryResponse;
+      }
+    }
+
+    clearTokens();
+    if (typeof window !== "undefined") {
+      window.location.href = "/admin/login";
     }
   }
 
@@ -135,4 +160,38 @@ export async function uploadResume(file: File) {
   }
 
   return response.json() as Promise<APIResponse<Record<string, unknown>>>;
+}
+
+export async function generateSuggestion(params: {
+  targetPath: string;
+  textInput?: string;
+  file?: File | null;
+  useExistingResume?: boolean;
+}) {
+  const formData = new FormData();
+  formData.append("target_path", params.targetPath);
+
+  if (params.textInput) {
+    formData.append("text_input", params.textInput);
+  }
+
+  if (params.file) {
+    formData.append("file", params.file);
+  }
+
+  if (params.useExistingResume) {
+    formData.append("use_existing_resume", "true");
+  }
+
+  const response = await apiFetch<SuggestionPatchData>("/v1/suggestions/generate", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Failed to generate suggestion");
+  }
+
+  return response.json() as Promise<APIResponse<SuggestionPatchData>>;
 }

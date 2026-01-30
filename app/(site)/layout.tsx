@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { fetchPortfolioISR } from "../../lib/server/portfolio";
+import { fetchPortfolioLive } from "../../lib/server/portfolio";
 import { themeToStyle } from "../../lib/theme";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const portfolio = await fetchPortfolioISR();
+  const portfolio = await fetchPortfolioLive();
   const metadata = portfolio?.metadata;
 
   return {

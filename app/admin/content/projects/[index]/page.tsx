@@ -7,15 +7,18 @@ import Button from "../../../components/Button";
 import SurfaceCard from "../../../components/SurfaceCard";
 import DraftBar from "../../../../components/admin/DraftBar";
 import usePortfolioDraft from "../../../hooks/usePortfolioDraft";
-import { emptyPortfolio } from "../../utils";
+import { emptyPortfolio, parseList } from "../../utils";
 import ListInput from "../../components/ListInput";
 import type { ProjectEntry } from "../../../../../lib/types";
+import AiFieldSuggestion from "../../../../components/admin/ai-suggestions/AiFieldSuggestion";
 
 export default function ProjectEditorPage() {
   const router = useRouter();
   const params = useParams<{ index: string }>();
   const rawIndex = params.index;
   const createdRef = useRef(false);
+  const lastDraftRef = useRef<typeof draft>(null);
+  const newIndexRef = useRef<number | null>(null);
   const {
     draft,
     setDraft,
@@ -29,19 +32,44 @@ export default function ProjectEditorPage() {
 
   const data = draft ?? emptyPortfolio();
   const isNew = rawIndex === "new";
-  const index = isNew ? (data.projects?.length ?? 0) : Number(rawIndex);
-  const entry = data.projects?.[index];
+  const list = data.projects ?? [];
+  const parsedIndex = Number(rawIndex);
+  useEffect(() => {
+    if (!isNew || loading) return;
+    if (newIndexRef.current === null) {
+      newIndexRef.current = list.length;
+    }
+  }, [isNew, list.length, loading]);
+
+  const index = isNew ? (newIndexRef.current ?? list.length) : parsedIndex;
+  const entry = list[index];
+  const invalidIndex = Number.isNaN(index) || index < 0;
+  const shouldCreate =
+    !loading && !createdRef.current && !invalidIndex && (isNew || (!entry && index === list.length));
+  const awaitingCreation =
+    !loading && !invalidIndex && !entry && (isNew || index === list.length);
 
   useEffect(() => {
-    if (!isNew || createdRef.current || loading) return;
+    if (draft !== lastDraftRef.current) {
+      lastDraftRef.current = draft;
+      createdRef.current = false;
+    }
+  }, [draft]);
+
+  useEffect(() => {
+    if (!shouldCreate) return;
     createdRef.current = true;
     const next = [
-      ...(data.projects ?? []),
+      ...list,
       { title: "", description: "", link: "", tags: [], caseStudy: undefined },
     ];
     setDraft({ ...data, projects: next });
-    router.replace(`/admin/content/projects/${next.length - 1}`);
-  }, [data, isNew, loading, router, setDraft]);
+  }, [data, list, setDraft, shouldCreate]);
+
+  useEffect(() => {
+    if (loading || !invalidIndex) return;
+    router.push("/admin/content/projects");
+  }, [invalidIndex, loading, router]);
 
   const updateProject = (next: Partial<ProjectEntry>) => {
     const list = [...(data.projects ?? [])];
@@ -72,7 +100,23 @@ export default function ProjectEditorPage() {
     );
   }
 
-  if (!entry && !isNew) {
+  if (invalidIndex) {
+    return (
+      <AdminShell
+        title="Projects"
+        breadcrumb={[
+          { label: "Admin", href: "/admin/dashboard" },
+          { label: "Content", href: "/admin/content" },
+          { label: "Projects", href: "/admin/content/projects" },
+          { label: "Invalid project" },
+        ]}
+      >
+        <SurfaceCard>Invalid project.</SurfaceCard>
+      </AdminShell>
+    );
+  }
+
+  if (!entry && !awaitingCreation) {
     return (
       <AdminShell
         title="Projects"
@@ -88,7 +132,7 @@ export default function ProjectEditorPage() {
     );
   }
 
-  if (!entry && isNew) {
+  if (!entry && awaitingCreation) {
     return (
       <AdminShell
         title="Projects"
@@ -105,6 +149,15 @@ export default function ProjectEditorPage() {
   }
 
   const current = entry as ProjectEntry;
+  const coerceTags = (value: unknown) => {
+    if (Array.isArray(value)) {
+      return value.filter((item): item is string => typeof item === "string");
+    }
+    if (typeof value === "string") {
+      return parseList(value);
+    }
+    return null;
+  };
 
   return (
     <AdminShell
@@ -133,31 +186,64 @@ export default function ProjectEditorPage() {
           </Button>
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Title"
-            value={current.title}
-            onChange={(event) => updateProject({ title: event.target.value })}
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Title"
+              value={current.title}
+              onChange={(event) => updateProject({ title: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`projects[${index}].title`}
+              currentValue={current.title}
+              onApply={(value) => updateProject({ title: value })}
+              label="Title"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+              placeholder="Link"
+              value={current.link}
+              onChange={(event) => updateProject({ link: event.target.value })}
+            />
+            <AiFieldSuggestion
+              targetPath={`projects[${index}].link`}
+              currentValue={current.link}
+              onApply={(value) => updateProject({ link: value })}
+              label="Link"
+            />
+          </div>
+        </div>
+        <div className="mt-3 flex gap-3">
+          <textarea
+            className="min-h-[80px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
+            placeholder="Description"
+            value={current.description}
+            onChange={(event) => updateProject({ description: event.target.value })}
           />
-          <input
-            className="w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-            placeholder="Link"
-            value={current.link}
-            onChange={(event) => updateProject({ link: event.target.value })}
+          <AiFieldSuggestion
+            targetPath={`projects[${index}].description`}
+            currentValue={current.description}
+            onApply={(value) => updateProject({ description: value })}
+            label="Description"
           />
         </div>
-        <textarea
-          className="mt-3 min-h-[80px] w-full rounded-2xl border border-[var(--bg-divider)] bg-[var(--bg-primary)] px-4 py-2 text-sm"
-          placeholder="Description"
-          value={current.description}
-          onChange={(event) => updateProject({ description: event.target.value })}
-        />
         <div className="mt-3 flex flex-col gap-2">
-          <ListInput
-            value={current.tags}
-            placeholder="Tags (comma or line separated)"
-            onCommit={(next) => updateProject({ tags: next })}
-          />
+          <div className="flex items-center gap-3">
+            <ListInput
+              value={current.tags}
+              placeholder="Tags (comma or line separated)"
+              onCommit={(next) => updateProject({ tags: next })}
+            />
+            <AiFieldSuggestion
+              targetPath={`projects[${index}].tags`}
+              currentValue={current.tags ?? []}
+              onApply={(value) => updateProject({ tags: value })}
+              coerceValue={coerceTags}
+              label="Tags"
+            />
+          </div>
           <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-muted)]">
             Use commas or new lines to separate tags.
           </p>
